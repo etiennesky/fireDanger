@@ -8,6 +8,7 @@ function (t, rh, p, modified = FALSE) {
 	if (length(t) != length(r) | length(t) != length(p)) {
 		stop("Input time series of differing lengths")
 	}
+      vec <- rep(NA, length(t))
 	if (any(is.na(t) | is.na(r) | is.na(p))) {
 		unique(c(which(is.na(t)), which(is.na(r)), which(is.na(r)))) -> na
 		t <- t[-na] 
@@ -36,5 +37,10 @@ function (t, rh, p, modified = FALSE) {
 		}
 		NI <- NI * k
 	}
-	return(NI)
+      if (exists("na")) {
+            vec[-na] <- NI
+            return(vec)
+      } else {
+            return(NI)
+      }
 }

@@ -113,7 +113,8 @@ kbdi <- function (date, t, p, h, w, wrs = 150, start.date = NULL) { # requires d
                   Q[i] <- Q[i-1]
             }
             # Potential evapotranspiration (K&B, 1968)
-            Ep[i] <- ((.968 * exp(.0486 * t[i]) - .830) * .001) / (1 + (10.88 * exp(-.0441 * M)))
+            # NOTE Alexander (1990) corregidendum on the original equation!!
+            Ep[i] <- ((.968 * exp(.0486 * t[i]) - 8.30) * .001) / (1 + (10.88 * exp(-.0441 * M))) 
             dQ[i] <- (800 - Q[i]) * Ep[i]
             Q[i] <- Q[i] + dQ[i]      
       }
