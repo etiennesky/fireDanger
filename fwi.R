@@ -19,8 +19,8 @@
 #' containing the requested components of the FWI system (either all or just FWI). See details.
 #' 
 #' @section Daylength adjustment factors: 
-#' By default, the function applies the original FWI daylength adjustment factors for DC and DMC, although
-#' it is possible to adjust them by introducing the latitude value in the argument \code{lat}.
+#' By default, the function applies the original FWI daylength adjustment factors for DC and DMC (van Wagner 1987),
+#'  although it is possible to adjust them by as a function of latitude through the argument \code{lat}.
 #' The reference values used for each latitudinal range are those indicated in p.71 and Tables A3.1 and A3.2 (p69) in
 #' Lawson and Armitage (2008).
 #' 
