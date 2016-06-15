@@ -1,3 +1,10 @@
 .Rproj.user
 .Rhistory
 .RData
+.project
+ignore
+commonR
+init.R
+downscaleR.Rproj
+.Rprofile
+*.Rbuildignore
