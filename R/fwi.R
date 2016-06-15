@@ -66,6 +66,7 @@ fwi <- function(multigrid, lonLim = NULL, latLim = NULL, lat = 46, return.all = 
       W1  <- subsetGrid(multigrid, var = "wss")
       fwigrid <- W1
       n.mem <- downscaleR:::getShape(W1, "member")
+      message("[", Sys.time(), "] Calculating FWI...")
       a <- apply_fun(1:n.mem, function(x) {
             Tm2 <- array3Dto2Dmat(subsetGrid(Tm1, members = x)$Data)
             H2 <- array3Dto2Dmat(subsetGrid(H1, members = x)$Data)
@@ -79,6 +80,7 @@ fwi <- function(multigrid, lonLim = NULL, latLim = NULL, lat = 46, return.all = 
             return(c)
       })
       fwidat <- do.call("abind", list(a, along = 0))
+      message("[", Sys.time(), "] Done.")
       dimNames <- attr(fwigrid$Data, "dimensions")
       fwigrid$Data <- unname(fwidat)
       attr(fwigrid$Data, "dimensions") <- dimNames
