@@ -82,6 +82,7 @@ wfwi <- function(dataset, dictionary = TRUE,
                            members = members, season = season, years = years, leadMonth = leadMonth, time = "DD",
                            aggr.d = "mean")
                   W$Data <- apply(W$Data, MARGIN = 1:4, function(x) x*3.6)
+                  attr(W$Data, "dimensions") <- attr(r$Data, "dimensions") 
                   multigrid <- makeMultiGrid(Tm, H, r, W)
                   a[[i]] <- fwi(multigrid, lat = lat, return.all = return.all, 
                                 parallel = parallel, init.pars = init.pars, 
