@@ -47,7 +47,7 @@ The reference values used for each latitudinal range are those indicated in p.71
 Lawson and Armitage (2008).
 }
 \author{
-J. Bedia, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
+J. Bedia & M. Iturbide, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
 }
 \references{
 Lawson, B.D. & Armitage, O.B., 2008. Weather guide for the Canadian Forest Fire Danger Rating System. Northern Forestry Centre, Edmonton (Canada).

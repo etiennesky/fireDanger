@@ -33,7 +33,7 @@
 #' 
 #' van Wagner, C.E., Pickett, T.L., 1985. Equations and FORTRAN program for the Canadian forest fire weather index system (Forestry Tech. Rep. No. 33). Canadian Forestry Service, Ottawa, Canada.
 #' 
-#' @author J. Bedia, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
+#' @author J. Bedia & M. Iturbide, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
 #' @export
 #' @importFrom abind abind
 #' @import downscaleR 

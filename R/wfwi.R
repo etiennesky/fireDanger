@@ -3,10 +3,7 @@
 #' @description Implementation of the Canadian Fire Weather Index System 
 #' 
 #' @param dataset A character string indicating the database to be accessed (partial matching is enabled). 
-#' Currently accepted values are "System4_seasonal_15", "System4_seasonal_51", "System4_annual_15", "CFSv2_seasonal", 
-#' "SMHI-EC-EARTH_EUPORIAS", "Glosea5_seasonal_12" and "Glosea5_seasonal_24" for hindcasts, "WFDEI" for the WATCH Forcing 
-#' Dataset based on ERA-Interim (gridded observations) and "ERA_interim" and "NCEP_reanalysis1" for the ECMWF Interim and 
-#' NCEP/NCAR reanalyses respectively. See details on available datasets.
+#' Currently accepted values are "System4_seasonal_15" and "CFSv2_seasonal".
 #' @param dictionary A logical flag indicating if a dictionary is used for variable homogenization. Default (strongly recommended) 
 #' is set to TRUE, meaning that the function will internally perform the necessary homogenization steps to return the standard 
 #' variables defined in the vocabulary (e.g. variable transformation, deaccumulation...). See details on data homogenization.
@@ -51,7 +48,7 @@
 #' 
 #' van Wagner, C.E., Pickett, T.L., 1985. Equations and FORTRAN program for the Canadian forest fire weather index system (Forestry Tech. Rep. No. 33). Canadian Forestry Service, Ottawa, Canada.
 #' 
-#' @author J. Bedia, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
+#' @author J. Bedia & M.Iturbide, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
 #' @export
 #' @importFrom abind abind
 #' @importFrom downscaleR makeMultiGrid
@@ -70,7 +67,7 @@ wfwi <- function(dataset, dictionary = TRUE,
       a <- list()
             for(i in 1:length(coords$x)){
             lonLim <- c(coords$x[i], coords$x[i+1])
-                  if(!is.na(lonLim[2])) lonLim[2] <- coords$x[1] 
+                  if(is.na(lonLim[2])) lonLim[2] <- coords$x[1] 
                         
                   Tm <- loadECOMS(dataset, lonLim = lonLim, var = "tas", dictionary = dictionary, 
                         members = members, season = season, years = years, leadMonth = leadMonth, time = "DD",
@@ -84,6 +81,7 @@ wfwi <- function(dataset, dictionary = TRUE,
                   W <- loadECOMS(dataset, lonLim = lonLim, var = "wss", dictionary = dictionary, 
                            members = members, season = season, years = years, leadMonth = leadMonth, time = "DD",
                            aggr.d = "mean")
+                  W$Data <- apply(W$Data, MARGIN = 1:4, function(x) x*3.6)
                   multigrid <- makeMultiGrid(Tm, H, r, W)
                   a[[i]] <- fwi(multigrid, lat = lat, return.all = return.all, 
                                 parallel = parallel, init.pars = init.pars, 

@@ -8,7 +8,7 @@ fwi1D(months, Tm, H, r, W, lat = 46, return.all = FALSE, init.pars = c(85,
   6, 15))
 }
 \arguments{
-\item{months}{}
+\item{months}{Vector of integers corresponding to the months in the data}
 
 \item{Tm}{Vector of temperature records (deg. Celsius)}
 

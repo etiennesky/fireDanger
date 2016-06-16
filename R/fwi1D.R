@@ -2,7 +2,7 @@
 #' 
 #' @description Implementation of the Canadian Fire Weather Index System to 1D data
 #' 
-#' @param months
+#' @param months Vector of integers corresponding to the months in the data
 #' @param Tm Vector of temperature records (deg. Celsius)
 #' @param H Vector of relative humidity records (\%)
 #' @param r Vector of last 24-h accumulated precipitation (mm)

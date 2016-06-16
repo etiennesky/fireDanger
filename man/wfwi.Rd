@@ -11,10 +11,7 @@ wfwi(dataset, dictionary = TRUE, members = NULL, season = NULL,
 }
 \arguments{
 \item{dataset}{A character string indicating the database to be accessed (partial matching is enabled).
-Currently accepted values are "System4_seasonal_15", "System4_seasonal_51", "System4_annual_15", "CFSv2_seasonal",
-"SMHI-EC-EARTH_EUPORIAS", "Glosea5_seasonal_12" and "Glosea5_seasonal_24" for hindcasts, "WFDEI" for the WATCH Forcing
-Dataset based on ERA-Interim (gridded observations) and "ERA_interim" and "NCEP_reanalysis1" for the ECMWF Interim and
-NCEP/NCAR reanalyses respectively. See details on available datasets.}
+Currently accepted values are "System4_seasonal_15" and "CFSv2_seasonal".}
 
 \item{dictionary}{A logical flag indicating if a dictionary is used for variable homogenization. Default (strongly recommended)
 is set to TRUE, meaning that the function will internally perform the necessary homogenization steps to return the standard
@@ -69,7 +66,7 @@ The reference values used for each latitudinal range are those indicated in p.71
 Lawson and Armitage (2008).
 }
 \author{
-J. Bedia, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
+J. Bedia & M.Iturbide, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
 }
 \references{
 Lawson, B.D. & Armitage, O.B., 2008. Weather guide for the Canadian Forest Fire Danger Rating System. Northern Forestry Centre, Edmonton (Canada).
