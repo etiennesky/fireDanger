@@ -3,10 +3,9 @@ Depends:
     R(>= 3.1.0)
 Imports:
     abind,
-    downscaleR
+    downscaleR,
+    loadeR.ECOMS
 Suggests:
-    loadeR,
-    loadeR.ECOMS,
     visualizeR
 Type: Package
 Title: Fire weather index calculation
