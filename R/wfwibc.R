@@ -1,6 +1,6 @@
-#' @title World Fire Weather Index 
+#' @title World Bias Correction
 #' 
-#' @description Implementation of the Canadian Fire Weather Index System 
+#' @description Application of different bias correction methods to seasonal forecasts covering the World.
 #' 
 #' @param dataset A character string indicating the database to be accessed (partial matching is enabled). 
 #' Currently accepted values are "System4_seasonal_15" and "CFSv2_seasonal".
@@ -54,55 +54,57 @@
 #' @importFrom downscaleR makeMultiGrid
 #' @import loadeR.ECOMS
 
-wfwi <- function(dataset, dictionary = TRUE, 
-                     members = NULL, season = NULL,
-                     years = NULL, leadMonth = 1,
-                     lat = 46, return.all = FALSE, init.pars = c(85, 6, 15),
-                     parallel = FALSE,
-                     max.ncores = 16,
-                     ncores = NULL){
+wfwibc <- function(dataset, dictionary = TRUE, 
+                 members = NULL, season = NULL,
+                 years = NULL, leadMonth = 1,
+                 lat = 46, return.all = FALSE, init.pars = c(85, 6, 15),
+                 bc.multigrid, 
+                 method = c("delta", "scaling", "eqm", "gqm", "gpqm"),
+                 cross.val = c("none", "loocv", "kfold"),
+                 folds = NULL,
+                 window = NULL,
+                 scaling.type = c("additive", "multiplicative"),
+                 wet.threshold = 1, n.quantiles = NULL, extrapolation = c("none", "constant"), 
+                 theta = .95,
+                 parallel = FALSE,
+                 max.ncores = 16,
+                 ncores = NULL){
       coords <- loadECOMS(dataset, var = "tas", dictionary = TRUE, 
-                      members = 1, season = 1, years = 1991, leadMonth = 1, time = "DD",
-                      aggr.d = "mean", aggr.m = "mean")$xyCoords
-      zero <- which(coords$x==0)
-      coords$x <- coords$x[-c(zero-1, zero, zero+1)]
+                          members = 1, season = 1, years = 1991, leadMonth = 1, time = "DD",
+                          aggr.d = "mean", aggr.m = "mean")$xyCoords
+      
       a <- list()
-            for(i in 1:length(coords$x)){
+      for(i in 1:length(coords$x)){
             lonLim <- c(coords$x[i], coords$x[i+1])
-                  if(is.na(lonLim[2])) lonLim[2] <- coords$x[1] 
-                  message("longitude ", i, ",  ", length(coords$x) - i, " remaining")
-                  Tm <- loadECOMS(dataset, lonLim = lonLim, var = "tas", dictionary = dictionary, 
-                        members = members, season = season, years = years, leadMonth = leadMonth, time = "DD",
-                        aggr.d = "mean")
-                  H <- loadECOMS(dataset, lonLim = lonLim, var = "hurs", dictionary = dictionary, 
+            if(is.na(lonLim[2])) lonLim[2] <- coords$x[1] 
+            
+            Tm <- loadECOMS(dataset, lonLim = lonLim, var = "tas", dictionary = dictionary, 
                             members = members, season = season, years = years, leadMonth = leadMonth, time = "DD",
-                            aggr.d = "min")
-                  r <- loadECOMS(dataset, lonLim = lonLim, var = "tp", dictionary = dictionary, 
+                            aggr.d = "mean")
+#             Tm <- biasCorrection(y = y, x = x, newdata = newdata, method = method, cross.val = cross.val, folds = folds,window = window, 
+#                            scaling.type = scaling.type, wet.threshold = wet.threshold, n.quantiles = n.quantiles, 
+#                            extrapolation = extrapolation, theta = theta)
+            H <- loadECOMS(dataset, lonLim = lonLim, var = "hurs", dictionary = dictionary, 
+                           members = members, season = season, years = years, leadMonth = leadMonth, time = "DD",
+                           aggr.d = "min")
+            r <- loadECOMS(dataset, lonLim = lonLim, var = "tp", dictionary = dictionary, 
                            members = members, season = season, years = years, leadMonth = leadMonth, time = "DD",
                            aggr.d = "sum")
-                  W <- loadECOMS(dataset, lonLim = lonLim, var = "wss", dictionary = dictionary, 
+            W <- loadECOMS(dataset, lonLim = lonLim, var = "wss", dictionary = dictionary, 
                            members = members, season = season, years = years, leadMonth = leadMonth, time = "DD",
                            aggr.d = "mean")
-                  W$Data <- apply(W$Data, MARGIN = 1:4, function(x) x*3.6)
-                  attr(W$Data, "dimensions") <- attr(r$Data, "dimensions") 
-                  multigrid <- makeMultiGrid(Tm, H, r, W)
-                  if(dim(Tm$Data)[4] > 2){
-                        xx <- dim(Tm$Data)[4]-1
-                        a[[i]] <- fwi(multigrid, lat = lat, return.all = return.all, 
-                                      parallel = parallel, init.pars = init.pars, 
-                                      max.ncores = max.cores, ncores = ncores)$Data[,,,xx,drop=FALSE]
-                  }else{
-                        a[[i]] <- fwi(multigrid, lat = lat, return.all = return.all, 
-                                parallel = parallel, init.pars = init.pars, 
-                                max.ncores = max.cores, ncores = ncores)$Data[,,,1,drop=FALSE]
-                  }
-            }
+            W$Data <- apply(W$Data, MARGIN = 1:4, function(x) x*3.6)
+            multigrid <- makeMultiGrid(Tm, H, r, W)
+            a[[i]] <- fwi(multigrid, lat = lat, return.all = return.all, 
+                          parallel = parallel, init.pars = init.pars, 
+                          max.ncores = max.cores, ncores = ncores)$Data[,,,i]
+            
+      }
       out <- W
-      out$Data <- unname(do.call("abind", list(a, along = 4)))
+      out$Data <- do.call("abind", list(a, along = 4))
       attr(out$Data, "dimensions") <- attr(W$Data, "dimensions")
       out$xyCoords$x <- coords$x
       out$Variable <- list()
       out$Variable$varName <- "fwi" 
-      attr(out$Variable, "units") <- "%"
       return(out)
 }

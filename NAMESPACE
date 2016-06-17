@@ -2,6 +2,7 @@
 
 export(fwi)
 export(wfwi)
+export(wfwibc)
 import(downscaleR)
 import(loadeR.ECOMS)
 importFrom(abind,abind)
