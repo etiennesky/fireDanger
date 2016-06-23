@@ -1,9 +1,9 @@
-#' @title World Bias Correction
+#' @title World Fire Weather Index for System4 hindcast
 #' 
-#' @description Application of different bias correction methods to seasonal forecasts covering the World.
+#' @description Implementation of the Canadian Fire Weather Index System 
 #' 
 #' @param dataset A character string indicating the database to be accessed (partial matching is enabled). 
-#' Currently accepted values are "System4_seasonal_15" and "CFSv2_seasonal".
+#' Currently accepted values are "System4_seasonal_15".
 #' @param dictionary A logical flag indicating if a dictionary is used for variable homogenization. Default (strongly recommended) 
 #' is set to TRUE, meaning that the function will internally perform the necessary homogenization steps to return the standard 
 #' variables defined in the vocabulary (e.g. variable transformation, deaccumulation...). See details on data homogenization.
@@ -21,8 +21,6 @@
 #' season=1 (January) corresponds to the December initialization. Default to 1 (i.e., 1 lead month forecast). If the dataset is not a 
 #' forecast or the requested variable is static (e.g. orography) it will be ignored. A message will be printed on screen in the first 
 #' case if its value is different from NULL. See details on initialization times.
-#' @param lat Optional. Latitude of the records (in decimal degrees). Default to 46,
-#' applying the default parameters of the original FWI System, developed in Canada. See details.
 #' @param return.all Logical. Should all components of the FWI system be returned?. 
 #' Default to FALSE, indicating that only FWI is returned.
 #' @param init.pars A numeric vector of length 3 with the initialization values for the
@@ -53,57 +51,58 @@
 #' @importFrom downscaleR makeMultiGrid
 #' @import loadeR.ECOMS
 
-wfwibc <- function(dataset, dictionary = TRUE, 
-                 members = NULL, season = NULL,
-                 years = NULL, leadMonth = 1,
-                 lat = 46, return.all = FALSE, init.pars = c(85, 6, 15),
-                 bc.multigrid, 
-                 method = c("delta", "scaling", "eqm", "gqm", "gpqm"),
-                 cross.val = c("none", "loocv", "kfold"),
-                 folds = NULL,
-                 window = NULL,
-                 scaling.type = c("additive", "multiplicative"),
-                 wet.threshold = 1, n.quantiles = NULL, extrapolation = c("none", "constant"), 
-                 theta = .95,
-                 parallel = FALSE,
-                 max.ncores = 16,
-                 ncores = NULL){
-      coords <- loadECOMS(dataset, var = "tas", dictionary = TRUE, 
-                          members = 1, season = 1, years = 1991, leadMonth = 1, time = "DD",
-                          aggr.d = "mean", aggr.m = "mean")$xyCoords
+wfwi_s4 <- function(dataset, dictionary = TRUE, 
+                     members = NULL, season = NULL,
+                     years = NULL, leadMonth = 0,
+                     return.all = FALSE, init.pars = c(85, 6, 15),
+                     parallel = FALSE,
+                     max.ncores = 16,
+                     ncores = NULL){
+      #       coords <- loadECOMS(dataset, var = "tas", dictionary = TRUE, 
+      #                           members = 1, season = 1, years = 1991, leadMonth = 1, time = "DD",
+      #                           aggr.d = "mean", aggr.m = "mean")$xyCoords
+      #       
+      #       ind <- rep(c(1,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA), length(coords$x)/24)
+      #       x <- na.omit(coords$x*ind)
+      #       p <- which(x==0)
+      #       if(length(p)!=0){
+      #             x <- x[-(which(x==0))]
+      #       }
+      x <-  c(-61.5, -50, -30, -10, 10, 30, 50, 70, 76)
+      lats <- c(-45, -45, -20, 0, 20, 45, 45, 45) # L&A p71
       
       a <- list()
-      for(i in 1:length(coords$x)){
-            lonLim <- c(coords$x[i], coords$x[i+1])
-            if(is.na(lonLim[2])) lonLim[2] <- coords$x[1] 
-            
-            Tm <- loadECOMS(dataset, lonLim = lonLim, var = "tas", dictionary = dictionary, 
+      for(i in 1:(length(x)-1)){
+            latLim <- c(x[i], x[i+1])
+            lat <- lats[i]
+            #             if(is.na(lonLim[2])) lonLim[2] <- 180
+            msk <- subsetGrid(mask, latLim = latLim, outside = T)
+            message("latitude ", i, ",  ", length(x) - i, " remaining")
+            Tm <- loadECOMS(dataset,  latLim = latLim, var = "tas", dictionary = dictionary, 
                             members = members, season = season, years = years, leadMonth = leadMonth, time = "DD",
                             aggr.d = "mean")
-#             Tm <- biasCorrection(y = y, x = x, newdata = newdata, method = method, cross.val = cross.val, folds = folds,window = window, 
-#                            scaling.type = scaling.type, wet.threshold = wet.threshold, n.quantiles = n.quantiles, 
-#                            extrapolation = extrapolation, theta = theta)
-            H <- loadECOMS(dataset, lonLim = lonLim, var = "hurs", dictionary = dictionary, 
+            H <- loadECOMS(dataset,  latLim = latLim, var = "hurs", dictionary = dictionary, 
                            members = members, season = season, years = years, leadMonth = leadMonth, time = "DD",
                            aggr.d = "min")
-            r <- loadECOMS(dataset, lonLim = lonLim, var = "tp", dictionary = dictionary, 
+            r <- loadECOMS(dataset,  latLim = latLim, var = "tp", dictionary = dictionary, 
                            members = members, season = season, years = years, leadMonth = leadMonth, time = "DD",
                            aggr.d = "sum")
-            W <- loadECOMS(dataset, lonLim = lonLim, var = "wss", dictionary = dictionary, 
+            W <- loadECOMS(dataset,  latLim = latLim, var = "wss", dictionary = dictionary, 
                            members = members, season = season, years = years, leadMonth = leadMonth, time = "DD",
                            aggr.d = "mean")
             W$Data <- apply(W$Data, MARGIN = 1:4, function(x) x*3.6)
+            attr(W$Data, "dimensions") <- attr(r$Data, "dimensions") 
             multigrid <- makeMultiGrid(Tm, H, r, W)
-            a[[i]] <- fwi(multigrid, lat = lat, return.all = return.all, 
-                          parallel = parallel, init.pars = init.pars, 
-                          max.ncores = max.cores, ncores = ncores)$Data[,,,i]
-            
+            xx <- dim(Tm$Data)[3]-1
+            Tm <- H <- r <- W <- NULL
+            b <- fwi(multigrid, mask = msk, lat = lat, return.all = return.all, 
+                     parallel = parallel, init.pars = init.pars, 
+                     max.ncores = max.cores, ncores = ncores)$Data[,,1:xx,,drop=FALSE]
+            a[[i]] <- b
+            save(list=c("b"), file = paste("temp/world_fwi_s4_", i,"_", years, ".rda", sep=""), compress = "xz")
+            b <- NULL
+            gc()
       }
-      out <- W
-      out$Data <- do.call("abind", list(a, along = 4))
-      attr(out$Data, "dimensions") <- attr(W$Data, "dimensions")
-      out$xyCoords$x <- coords$x
-      out$Variable <- list()
-      out$Variable$varName <- "fwi" 
+      out <- unname(do.call("abind", list(a, along = 3)))
       return(out)
 }

@@ -4,6 +4,7 @@
 #' 
 #' @param multigrid containing Tm (temperature records in deg. Celsius); H (relative humidity records in \%);
 #' r (last 24-h accumulated precipitation in mm); W (wind velocity records in Km/h).
+#' @param mask Optional. Binary (0 an 1) Grid.
 #' @param latLim Same as \code{lonLim} argument, but for latitude.
 #' @param lonLim Vector of length = 2, with minimum and maximum longitude coordinates, in decimal degrees,
 #' @param lat Optional. Latitude of the records (in decimal degrees). Default to 46,
@@ -39,7 +40,7 @@
 #' @import downscaleR 
 
 
-fwi <- function(multigrid, lonLim = NULL, latLim = NULL, lat = 46, return.all = FALSE, init.pars = c(85, 6, 15),
+fwi <- function(multigrid, mask = NULL, lonLim = NULL, latLim = NULL, lat = 46, return.all = FALSE, init.pars = c(85, 6, 15),
                 parallel = FALSE,
                 max.ncores = 16,
                 ncores = NULL){
@@ -60,6 +61,9 @@ fwi <- function(multigrid, lonLim = NULL, latLim = NULL, lat = 46, return.all = 
             multigrid <- subsetGrid(multigrid, lonLim = latLim)
       }
       cords <- getCoordinates(multigrid)
+      if(!is.null(mask)){
+      mask1 <- downscaleR:::redim(mask, member = F, runtime = F, drop = F)
+      }
       Tm1 <- subsetGrid(multigrid, var = "tas")
       H1  <- subsetGrid(multigrid, var = "hurs")
       r1  <- subsetGrid(multigrid, var = "tp")
@@ -72,9 +76,17 @@ fwi <- function(multigrid, lonLim = NULL, latLim = NULL, lat = 46, return.all = 
             H2 <- array3Dto2Dmat(subsetGrid(H1, members = x)$Data)
             r2 <- array3Dto2Dmat(subsetGrid(r1, members = x)$Data)
             W2 <- array3Dto2Dmat(subsetGrid(W1, members = x)$Data)
+            if(!is.null(mask)){
+                  mskmsk <- array3Dto2Dmat(mask1$Data)[1,]
+                  ind <- which(mskmsk > 0)
+            }else{
+                  ind <- 1:ncol(Tm2)
+            }
             b <- array(dim = dim(Tm2))
-            for(i in 1:ncol(Tm2)){
-                  b[,i] <- fwi1D(months, Tm = Tm2[,i], H = H2[,i], r = r2[,i], W = W2[,i], lat = lat, return.all = return.all, init.pars = init.pars)
+            if(length(ind)!=0){
+                  for(i in 1:length(ind)){
+                        b[,ind[i]] <- fwi1D(months, Tm = Tm2[,ind[i]], H = H2[,ind[i]], r = r2[,ind[i]], W = W2[,ind[i]], lat = lat, return.all = return.all, init.pars = init.pars)
+                  }
             }
             c <- mat2Dto3Darray(mat2D = b, x = cords$x, y = cords$y)
             return(c)

@@ -4,13 +4,15 @@
 \alias{fwi}
 \title{Fire Weather Index applied to multigrids}
 \usage{
-fwi(multigrid, lonLim = NULL, latLim = NULL, lat = 46,
+fwi(multigrid, mask = NULL, lonLim = NULL, latLim = NULL, lat = 46,
   return.all = FALSE, init.pars = c(85, 6, 15), parallel = FALSE,
   max.ncores = 16, ncores = NULL)
 }
 \arguments{
 \item{multigrid}{containing Tm (temperature records in deg. Celsius); H (relative humidity records in \%);
 r (last 24-h accumulated precipitation in mm); W (wind velocity records in Km/h).}
+
+\item{mask}{Optional. Binary (0 an 1) Grid.}
 
 \item{lonLim}{Vector of length = 2, with minimum and maximum longitude coordinates, in decimal degrees,}
 
