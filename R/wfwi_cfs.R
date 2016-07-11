@@ -67,8 +67,8 @@ wfwi_cfs <- function(dataset, mask = NULL, dictionary = TRUE,
 #       if(length(p)!=0){
 #             x <- x[-(which(x==0))]
 #       }
-      x <-  c(-61.5, -50, -30, -10, 10, 30, 50, 70, 76)
-      lats <- c(-45, -45, -20, 0, 20, 45, 45, 45) # L&A p71
+      x <-  c(-61.5, -50, -40, -30, -20, -10, 1, 10, 20, 30, 40, 50, 60, 70, 76)
+      lats <- c(-55, -45, -35, -25, -15, 0, 5, 15, 25, 35, 45, 55, 65, 72) # L&A p71
       
       a <- list()
       for(i in 1:(length(x)-1)){
@@ -105,3 +105,7 @@ wfwi_cfs <- function(dataset, mask = NULL, dictionary = TRUE,
       out <- unname(do.call("abind", list(a, along = 3)))
       return(out)
 }
+
+
+
+

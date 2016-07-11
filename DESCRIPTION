@@ -4,7 +4,8 @@ Depends:
 Imports:
     abind,
     downscaleR,
-    loadeR.ECOMS
+    loadeR.ECOMS,
+    easyVerification
 Suggests:
     visualizeR
 Type: Package

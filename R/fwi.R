@@ -65,9 +65,13 @@ fwi <- function(multigrid, mask = NULL, lonLim = NULL, latLim = NULL, lat = 46, 
       mask1 <- downscaleR:::redim(mask, member = F, runtime = F, drop = F)
       }
       Tm1 <- subsetGrid(multigrid, var = "tas")
+      Tm1 <- downscaleR:::redim(Tm1, drop = F)
       H1  <- subsetGrid(multigrid, var = "hurs")
+      H1 <- downscaleR:::redim(H1, drop = F)
       r1  <- subsetGrid(multigrid, var = "tp")
+      r1 <- downscaleR:::redim(r1, drop = F)
       W1  <- subsetGrid(multigrid, var = "wss")
+      W1 <- downscaleR:::redim(W1, drop = F)
       fwigrid <- W1
       n.mem <- downscaleR:::getShape(W1, "member")
       message("[", Sys.time(), "] Calculating FWI...")
@@ -80,12 +84,13 @@ fwi <- function(multigrid, mask = NULL, lonLim = NULL, latLim = NULL, lat = 46, 
                   mskmsk <- array3Dto2Dmat(mask1$Data)[1,]
                   ind <- which(mskmsk > 0)
             }else{
-                  ind <- 1:ncol(Tm2)
+                  ind <- which(!is.na(Tm2))
             }
             b <- array(dim = dim(Tm2))
             if(length(ind)!=0){
                   for(i in 1:length(ind)){
-                        b[,ind[i]] <- fwi1D(months, Tm = Tm2[,ind[i]], H = H2[,ind[i]], r = r2[,ind[i]], W = W2[,ind[i]], lat = lat, return.all = return.all, init.pars = init.pars)
+                        b[,ind[i]] <- tryCatch({fwi1D(months, Tm = Tm2[,ind[i]], H = H2[,ind[i]], r = r2[,ind[i]], W = W2[,ind[i]], lat = lat, return.all = return.all, init.pars = init.pars)},
+                              error = function(err){rep(NA, nrow(b))})
                   }
             }
             c <- mat2Dto3Darray(mat2D = b, x = cords$x, y = cords$y)
