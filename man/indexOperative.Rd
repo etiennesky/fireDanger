@@ -5,11 +5,11 @@
 \title{Index calculation for CFS operative seasonal forecast and csv file generation}
 \usage{
 indexOperative(dataset = "CFSv2_seasonal_operative", index = "fwi",
-  destdir = getwd(), url, mask = NULL, dictionary = TRUE,
-  members = 1:24, aggr.mem = list(FUN = NULL), season = NULL,
-  lonLim = NULL, latLim = NULL, years = NULL, leadMonth = 0,
-  operative = NULL, init.pars = c(85, 6, 15), parallel = FALSE,
-  max.ncores = 16, ncores = NULL)
+  climdir = getwd(), destdir = getwd(), url, mask = NULL,
+  dictionary = TRUE, members = 1:24, aggr.mem = list(FUN = NULL),
+  season = NULL, lonLim = NULL, latLim = NULL, years = NULL,
+  leadMonth = 0, operative = NULL, init.pars = c(85, 6, 15),
+  parallel = FALSE, max.ncores = 16, ncores = NULL)
 }
 \arguments{
 \item{dataset}{A character string indicating the database to be accessed (partial matching is enabled).

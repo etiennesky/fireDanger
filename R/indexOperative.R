@@ -66,14 +66,15 @@
 
 indexOperative <- function(dataset = "CFSv2_seasonal_operative",
                          index = "fwi", 
+                         climdir = getwd(),
                          destdir = getwd(), 
                          url,
                          mask = NULL,
                          dictionary = TRUE, 
                          members = 1:24, 
                          aggr.mem = list(FUN = NULL),
-#                          index.type = c("indexmean", "index90"),
-#                          skill = "ROCSS",
+#                           index.type = c("indexmean", "index90", "index30"),
+#                           skill = "ROCSS",
                          season = NULL, 
                          lonLim = NULL, 
                          latLim = NULL,
@@ -103,7 +104,7 @@ indexOperative <- function(dataset = "CFSv2_seasonal_operative",
              max.ncores = max.ncores,
              ncores = ncores)     
 #       save(operative, file = paste(destdir, "/", dataset,"_", years, "_", season[2], "_", season[length(season)], "_operative.rda"))
-      save(operative, file = paste(destdir, "/", "operative_",season[2], "_", season[length(season)], ".rda", sep = "")
+      save(operative, file = paste(destdir, "/", "operative_",season[2], "_", season[length(season)], ".rda", sep = ""))
       }else{
             operative <- get(load(operative))
       }
@@ -116,15 +117,17 @@ indexOperative <- function(dataset = "CFSv2_seasonal_operative",
 
       cellID <- paste(as.integer(lon*100), "-", as.integer(lat*100), sep = "")
       indexes <-  c("indexmean", "index90", "index30")
-      for(i in 1:2){
+      for(i in 1:3){
             index.type <- indexes[i]
             if(index.type == "indexmean"){
                   aggr.clim <- list(FUN = mean, na.rm = T)
             }else if(index.type == "index90"){
                   aggr.clim <- list(FUN = quantile, probs = .9, na.rm = T)
+            }else if(index.type == "index30"){
+                  aggr.clim <- list(FUN = function(x) sum(x > 30)/length(x))
             }
-            dirskill <- paste("/oceano/gmeteo/WORK/maialen/fwi/wfdei_climatology/", index, gsub("index",replacement = "", x = index.type),"_SKILL_", season[2], "_", season[length(season)], ".rda", sep = "")
-            dirClim <- paste("/oceano/gmeteo/WORK/maialen/fwi/wfdei_climatology/", index, gsub("index",replacement = "", x = index.type),"_WFDEI_", season[2], "_", season[length(season)], ".rda", sep = "")
+            dirskill <- paste(climdir, "/", index, gsub("index",replacement = "", x = index.type),"_SKILL_", season[2], "_", season[length(season)], ".rda", sep = "")
+            dirClim <- paste(climdir, "/", index, gsub("index",replacement = "", x = index.type),"_WFDEI_", season[2], "_", season[length(season)], ".rda", sep = "")
             sk <- get(load(dirskill))
             sk_sub <- subsetGrid(sk, lonLim = range(lon), latLim = range(lat), outside = T)
             ###
