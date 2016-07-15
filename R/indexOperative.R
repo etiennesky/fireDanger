@@ -6,9 +6,10 @@
 #' Currently accepted values are "CFSv2_seasonal".
 #' @param index Index to be computed, e.g. "fwi".
 #' @param destdir Output directory.
+#' @param climdir Directory where observational climatologies are stored.
 #' @param url ncml directory.
 #' @param mask Directory (including file name) of the land-mask grid (*.rda).
-#' @param dictionary A logical flag indicating if a dictionary is used for variable homogenization. Default (strongly recommended) 
+#' @param dictionary Path to the dictionary for variable homogenization. 
 #' is set to TRUE, meaning that the function will internally perform the necessary homogenization steps to return the standard 
 #' variables defined in the vocabulary (e.g. variable transformation, deaccumulation...). See details on data homogenization.
 #' @param members A vector of integers indicating the members to be loaded. Default to NULL, which loads the default members 

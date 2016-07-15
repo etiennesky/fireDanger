@@ -17,13 +17,15 @@ Currently accepted values are "CFSv2_seasonal".}
 
 \item{index}{Index to be computed, e.g. "fwi".}
 
+\item{climdir}{Directory where observational climatologies are stored.}
+
 \item{destdir}{Output directory.}
 
 \item{url}{ncml directory.}
 
 \item{mask}{Directory (including file name) of the land-mask grid (*.rda).}
 
-\item{dictionary}{A logical flag indicating if a dictionary is used for variable homogenization. Default (strongly recommended)
+\item{dictionary}{Path to the dictionary for variable homogenization.
 is set to TRUE, meaning that the function will internally perform the necessary homogenization steps to return the standard
 variables defined in the vocabulary (e.g. variable transformation, deaccumulation...). See details on data homogenization.}
 
