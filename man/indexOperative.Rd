@@ -6,10 +6,11 @@
 \usage{
 indexOperative(dataset = "CFSv2_seasonal_operative", index = "fwi",
   climdir = getwd(), destdir = getwd(), url, mask = NULL,
-  dictionary = TRUE, members = 1:24, aggr.mem = list(FUN = NULL),
-  season = NULL, lonLim = NULL, latLim = NULL, years = NULL,
-  leadMonth = 0, operative = NULL, init.pars = c(85, 6, 15),
-  parallel = FALSE, max.ncores = 16, ncores = NULL)
+  fwi.mask = TRUE, dictionary = TRUE, members = 1:24,
+  aggr.mem = list(FUN = NULL), season = NULL, lonLim = NULL,
+  latLim = NULL, years = NULL, leadMonth = 0, operative = NULL,
+  init.pars = c(85, 6, 15), parallel = FALSE, max.ncores = 16,
+  ncores = NULL)
 }
 \arguments{
 \item{dataset}{A character string indicating the database to be accessed (partial matching is enabled).
@@ -24,6 +25,9 @@ Currently accepted values are "CFSv2_seasonal".}
 \item{url}{ncml directory.}
 
 \item{mask}{Directory (including file name) of the land-mask grid (*.rda).}
+
+\item{fwi.mask}{Logical. If TRUE (default), a mask is applied to exclude
+land areas which will most likely not burn, like deserts etc.}
 
 \item{dictionary}{Path to the dictionary for variable homogenization.
 is set to TRUE, meaning that the function will internally perform the necessary homogenization steps to return the standard
@@ -61,9 +65,6 @@ FFMC, DMC and DC components, in this order. Default values as proposed by van Wa
 
 \item{ncores}{Integer number of cores used in parallel computation. Self-selected number of
  cores is used when \code{ncpus = NULL} (the default), or when \code{maxcores} exceeds the default \code{ncores} value.}
-
-\item{aggr.clim}{A list indicating the name of the aggregation function in first place, and other optional arguments
-to be passed to the aggregation function to compute the climtology.}
 }
 \value{
 A vector of the same length as the input vectors (minus possible missing observations),

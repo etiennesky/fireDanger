@@ -9,6 +9,8 @@
 #' @param climdir Directory where observational climatologies are stored.
 #' @param url ncml directory.
 #' @param mask Directory (including file name) of the land-mask grid (*.rda).
+#' @param fwi.mask Logical. If TRUE (default), a mask is applied to exclude 
+#' land areas which will most likely not burn, like deserts etc.
 #' @param dictionary Path to the dictionary for variable homogenization. 
 #' is set to TRUE, meaning that the function will internally perform the necessary homogenization steps to return the standard 
 #' variables defined in the vocabulary (e.g. variable transformation, deaccumulation...). See details on data homogenization.
@@ -18,8 +20,6 @@
 #' a forecast or the requested variable is static (e.g. orography) it will be ignored.
 #' @param aggr.mem Member aggregation function. A list indicating the name of the
 #'  aggregation function in first place, and other optional arguments to be passed to the aggregation function.
-#' @param aggr.clim A list indicating the name of the aggregation function in first place, and other optional arguments 
-#' to be passed to the aggregation function to compute the climtology.
 #' @param season An integer vector specifying the desired season (in months, January = 1 ..., December = 12). Options include 
 #' one to several (contiguous) months. For full year selections (not possible for all datasets, e.g. seasonal forecasts), 
 #' the argument value must be set to season = 1:12. If the requested variable is static (e.g. orography) it will be ignored. 
@@ -71,11 +71,10 @@ indexOperative <- function(dataset = "CFSv2_seasonal_operative",
                          destdir = getwd(), 
                          url,
                          mask = NULL,
+                         fwi.mask = TRUE,
                          dictionary = TRUE, 
                          members = 1:24, 
                          aggr.mem = list(FUN = NULL),
-#                           index.type = c("indexmean", "index90", "index30"),
-#                           skill = "ROCSS",
                          season = NULL, 
                          lonLim = NULL, 
                          latLim = NULL,
@@ -129,6 +128,12 @@ indexOperative <- function(dataset = "CFSv2_seasonal_operative",
             }
             dirskill <- paste(climdir, "/", index, gsub("index",replacement = "", x = index.type),"_SKILL_", season[2], "_", season[length(season)], ".rda", sep = "")
             dirClim <- paste(climdir, "/", index, gsub("index",replacement = "", x = index.type),"_WFDEI_", season[2], "_", season[length(season)], ".rda", sep = "")
+            if(fwi.mask == TRUE){
+                  dirMask <- paste(climdir, "/fwi_mask.rda", sep = "")
+                  fwmsk <- get(load(dirMask))
+                  fwmsk_sub <- subsetGrid(fwmsk, lonLim = range(lon), latLim = range(lat), outside = T)
+                  fwi_Mask <- as.vector(t(fwmsk_sub$Data))
+            }
             sk <- get(load(dirskill))
             sk_sub <- subsetGrid(sk, lonLim = range(lon), latLim = range(lat), outside = T)
             ###
@@ -143,7 +148,12 @@ indexOperative <- function(dataset = "CFSv2_seasonal_operative",
             skill.cat1 <- as.vector(t(sk_sub$Data[1,,]))
             skill.cat2 <- as.vector(t(sk_sub$Data[2,,]))
             skill.cat3 <- as.vector(t(sk_sub$Data[3,,]))
-            output <- cbind(cellID, lon, lat, fwiPrediction, fwiClimatology, skill.cat1, skill.cat2, skill.cat3)[-ind,]
+            print("hello")
+            if(fwi.mask == TRUE){
+                  output <- cbind(cellID, lon, lat, fwiPrediction, fwiClimatology, skill.cat1, skill.cat2, skill.cat3, fwi_Mask)[-ind,]
+            }else{
+                  output <- cbind(cellID, lon, lat, fwiPrediction, fwiClimatology, skill.cat1, skill.cat2, skill.cat3)[-ind,]
+            }
             write.table(output, file = paste(destdir, "/", index, gsub("index",replacement = "", x = index.type), "_", dataset,"_", years, "_", season[2], "_", season[length(season)], ".csv", sep=""), sep = " ", na = "", row.names = F, quote = F)
        }
 }
