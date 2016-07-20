@@ -154,7 +154,7 @@ indexOperative <- function(dataset = "CFSv2_seasonal_operative",
             }else{
                   output <- cbind(cellID, lon, lat, fwiPrediction, fwiClimatology, skill.cat1, skill.cat2, skill.cat3)[-ind,]
             }
-            write.table(output, file = paste(destdir, "/", index, gsub("index",replacement = "", x = index.type), "_", dataset,"_", years, "_", season[2], "_", season[length(season)], ".csv", sep=""), sep = " ", na = "", row.names = F, quote = F)
+            write.table(output, file = paste(destdir, "/", index, gsub("index",replacement = "", x = index.type), "_", dataset,"_", years, "_", season[2], "_", season[length(season)], "_lm", leadMonth, ".csv", sep=""), sep = " ", na = "", row.names = F, quote = F)
        }
 }
 
