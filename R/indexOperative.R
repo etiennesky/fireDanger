@@ -230,13 +230,14 @@ wfwiOP <- function(dataset = "CFSv2_seasonal_operative",
                         ncores = NULL){
       x <-  c(-90, -80, -70, -60, -50, -40, -30, -20, -10, 1, 10, 20, 30, 40, 50, 60, 70, 80, 90)
       
-      if (is.null(latLim)) latLim <-c(-61.5, 76)
+      if (is.null(latLim)) latLim <-c(-90, 90)
       if (is.null(lonLim)) lonLim <- c(-180, 180)
-      latindmin <- which(x < min(latLim))
-      if(length(latindmin)!=0) x <- x[-latindmin]
-      latindmax <- which(x > max(latLim))
-      if(length(latindmax)!=0)  x <- x[-latindmax]
+      latind <- findInterval(latLim, x)[1] : findInterval(latLim, x)[2]
+      if(x[latind[length(latind)]] < latLim[2]) latind[3] <- latind[2]+1
+      x <- x[latind]
       lats <- seq(min(x)+5, max(x)-5, 10) 
+      if(x[length(x)] > latLim[2]) x[length(x)] <- latLim[2]
+      if(x[1] < latLim[1]) x[1] <- latLim[1]
       
       a <- list()
       coords.x <- list()

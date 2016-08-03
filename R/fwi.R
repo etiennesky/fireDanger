@@ -54,12 +54,12 @@ fwi <- function(multigrid, mask = NULL, lonLim = NULL, latLim = NULL, lat = 46, 
       } else {
             apply_fun <- lapply      
       }
-      if (!is.null(lonLim)){
-            multigrid <- subsetGrid(multigrid, lonLim = lonLim)
-      }
-      if (!is.null(latLim)){
-            multigrid <- subsetGrid(multigrid, lonLim = latLim)
-      }
+#       if (!is.null(lonLim)){
+#             multigrid <- subsetGrid(multigrid, lonLim = lonLim)
+#       }
+#       if (!is.null(latLim)){
+#             multigrid <- subsetGrid(multigrid, lonLim = latLim)
+#       }
       cords <- getCoordinates(multigrid)
       if(!is.null(mask)){
       mask1 <- downscaleR:::redim(mask, member = F, runtime = F, drop = F)
@@ -89,8 +89,10 @@ fwi <- function(multigrid, mask = NULL, lonLim = NULL, latLim = NULL, lat = 46, 
             b <- array(dim = dim(Tm2))
             if(length(ind)!=0){
                   for(i in 1:length(ind)){
-                        b[,ind[i]] <- tryCatch({fwi1D(months, Tm = Tm2[,ind[i]], H = H2[,ind[i]], r = r2[,ind[i]], W = W2[,ind[i]], lat = lat, return.all = return.all, init.pars = init.pars)},
-                              error = function(err){rep(NA, nrow(b))})
+                        z <- tryCatch({fwi1D(months, Tm = Tm2[,ind[i]], H = H2[,ind[i]], r = r2[,ind[i]], W = W2[,ind[i]], lat = lat, return.all = return.all, init.pars = init.pars)},
+                                 error = function(err){rep(NA, nrow(b))})
+                        if(length(z) < length(b[,1])) z <- rep(NA, length(b[,1]))
+                        b[,ind[i]] <- z
                   }
             }
             c <- mat2Dto3Darray(mat2D = b, x = cords$x, y = cords$y)
