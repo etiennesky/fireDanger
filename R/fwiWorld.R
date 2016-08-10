@@ -21,6 +21,7 @@
 #' season=1 (January) corresponds to the December initialization. Default to 1 (i.e., 1 lead month forecast). If the dataset is not a 
 #' forecast or the requested variable is static (e.g. orography) it will be ignored. A message will be printed on screen in the first 
 #' case if its value is different from NULL. See details on initialization times.
+#' @param mask Grid of the land mask to be applied to the data.
 #' @param return.all Logical. Should all components of the FWI system be returned?. 
 #' Default to FALSE, indicating that only FWI is returned.
 #' @param init.pars A numeric vector of length 3 with the initialization values for the
@@ -30,8 +31,7 @@
 #' @param ncores Integer number of cores used in parallel computation. Self-selected number of
 #'  cores is used when \code{ncpus = NULL} (the default), or when \code{maxcores} exceeds the default \code{ncores} value.
 #' 
-#' @return A vector of the same length as the input vectors (minus possible missing observations),
-#' containing the requested components of the FWI system (either all or just FWI). See details.
+#' @return A grid, containing the requested components of the FWI system (either all or just FWI). See details.
 #' 
 #' @section Daylength adjustment factors: 
 #' By default, the function applies the original FWI daylength adjustment factors for DC and DMC (van Wagner 1987),

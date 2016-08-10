@@ -5,7 +5,7 @@
 \title{Skill calculation}
 \usage{
 fwiSkill(obs, fcst, verifun = c(""), prob, threshold = NULL,
-  na.rm = FALSE, parallel = FALSE, ...)
+  parallel = FALSE, na.rm = TRUE)
 }
 \arguments{
 \item{...}{same parameters as in function veriApply from package easyVerification}

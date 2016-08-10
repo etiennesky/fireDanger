@@ -30,6 +30,8 @@ season=1 (January) corresponds to the December initialization. Default to 1 (i.e
 forecast or the requested variable is static (e.g. orography) it will be ignored. A message will be printed on screen in the first
 case if its value is different from NULL. See details on initialization times.}
 
+\item{mask}{Grid of the land mask to be applied to the data.}
+
 \item{return.all}{Logical. Should all components of the FWI system be returned?.
 Default to FALSE, indicating that only FWI is returned.}
 
@@ -49,8 +51,7 @@ members of the hindcast. Discontinuous member selection (e.g. members=c(1,5,7)) 
 a forecast or the requested variable is static (e.g. orography) it will be ignored.}
 }
 \value{
-A vector of the same length as the input vectors (minus possible missing observations),
-containing the requested components of the FWI system (either all or just FWI). See details.
+A grid, containing the requested components of the FWI system (either all or just FWI). See details.
 }
 \description{
 Implementation of the Canadian Fire Weather Index System

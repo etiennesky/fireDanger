@@ -15,9 +15,8 @@ fwiSkill <- function(obs,
                      verifun = c(""), 
                      prob, 
                      threshold = NULL, 
-                     na.rm = FALSE, 
                      parallel = FALSE,
-                     ...){
+                     na.rm = TRUE){
             obs <- interpGrid(obs, getGrid(fcst))
             ensdim <- which(downscaleR:::getDim(fcst) == "member")
             tdim <- which(downscaleR:::getDim(fcst) == "time")
@@ -28,7 +27,8 @@ fwiSkill <- function(obs,
                                    prob = prob,
                                    ensdim = ensdim,
                                    tdim = tdim,
-                                   parallel = parallel)
+                                   parallel = parallel,
+                                   na.rm = na.rm)
             score.grid <- easyVeri2grid(easyVeri.mat = score[[1]],
                                            obs.grid = obs,
                                            verifun = verifun)  
@@ -59,7 +59,7 @@ plotFwiSkill <- function(grid){
       lc <- dim(grid$Data)[catdim]
       attr(grid$Data, "dimensions") <- c("member", "lat", "lon")
       grid.r <- downscaleR:::redim(grid)
-      plotClimatology(climatology(grid.r), backdrop.theme = "countries", par.strip.text = list(labels =paste("cat", 1:lc)))
+      plotClimatology(climatology(grid.r), backdrop.theme = "coastline", par.strip.text = list(labels =paste("cat", 1:lc)))
 }
 
 
