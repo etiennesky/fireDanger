@@ -8,7 +8,20 @@ fwiSkill(obs, fcst, verifun = c(""), prob, threshold = NULL,
   parallel = FALSE, na.rm = TRUE)
 }
 \arguments{
-\item{...}{same parameters as in function veriApply from package easyVerification}
+\item{obs}{Grid of the observation data}
+
+\item{fcst}{Grid of the seasonal forecast data}
+
+\item{verifun}{Name of function to compute verification metric (score, skill score).
+Type help(veriApply) for details.}
+
+\item{prob}{Probability threshold for category forecasts (Type help(veriApply) for details).}
+
+\item{threshold}{Aabsolute threshold for category forecasts (Type help(veriApply) for details).}
+
+\item{parallel}{Logical. Should parallel execution be used?}
+
+\item{na.rm}{Logical. Should incomplete forecasts be used?}
 }
 \value{
 A grid of the skill scores.

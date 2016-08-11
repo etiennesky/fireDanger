@@ -24,8 +24,6 @@ FFMC, DMC and DC components, in this order. Default values as proposed by van Wa
 
 \item{ncores}{Integer number of cores used in parallel computation. Self-selected number of
  cores is used when \code{ncpus = NULL} (the default), or when \code{maxcores} exceeds the default \code{ncores} value.}
-
-\item{mask}{Grid of the land mask to be applied to the data.}
 }
 \value{
 A grid, containing the requested components of the FWI system (either all or just FWI). See details.

@@ -5,9 +5,9 @@
 \title{World Fire Weather Index}
 \usage{
 fwiWorld(dataset = "WFDEI", dictionary = TRUE, years = NULL,
-  season = NULL, lonLim = NULL, latLim = NULL, leadMonth = 0,
-  mask = NULL, return.all = FALSE, init.pars = c(85, 6, 15),
-  parallel = FALSE, max.ncores = 16, ncores = NULL)
+  season = NULL, lonLim = NULL, latLim = NULL, members = NULL,
+  leadMonth = 0, mask = NULL, return.all = FALSE, init.pars = c(85, 6,
+  15), parallel = FALSE, max.ncores = 16, ncores = NULL)
 }
 \arguments{
 \item{dataset}{A character string indicating the database to be accessed (partial matching is enabled).
@@ -24,6 +24,17 @@ it will be ignored. See details on the definition of temporal slices.}
 one to several (contiguous) months. For full year selections (not possible for all datasets, e.g. seasonal forecasts),
 the argument value must be set to season = 1:12. If the requested variable is static (e.g. orography) it will be ignored.
 See details on the definition of temporal slices.}
+
+\item{lonLim}{Vector of length = 2, with minimum and maximum longitude coordinates, in decimal degrees, of the bounding box selected.
+For single-point queries, a numeric value with the longitude coordinate. If \code{NULL} (default), the whole longitudinal range
+ is selected (Note that this may lead to a large output object size).}
+
+\item{latLim}{Same as \code{lonLim}, but for the selection of the latitudinal range.}
+
+\item{members}{A vector of integers indicating the members to be loaded. Default to NULL, which loads the default members
+(see details for the particularities concerning the CFSv2 dataset). For instance, members=1:5 will retrieve the first five
+members of the hindcast. Discontinuous member selection (e.g. members=c(1,5,7)) is allowed. If the requested dataset is not
+a forecast or the requested variable is static (e.g. orography) it will be ignored.}
 
 \item{leadMonth}{Integer value indicating the lead forecast time, relative to the first month of season. Note that leadMonth=1 for
 season=1 (January) corresponds to the December initialization. Default to 1 (i.e., 1 lead month forecast). If the dataset is not a
@@ -44,11 +55,6 @@ FFMC, DMC and DC components, in this order. Default values as proposed by van Wa
 
 \item{ncores}{Integer number of cores used in parallel computation. Self-selected number of
  cores is used when \code{ncpus = NULL} (the default), or when \code{maxcores} exceeds the default \code{ncores} value.}
-
-\item{members}{A vector of integers indicating the members to be loaded. Default to NULL, which loads the default members
-(see details for the particularities concerning the CFSv2 dataset). For instance, members=1:5 will retrieve the first five
-members of the hindcast. Discontinuous member selection (e.g. members=c(1,5,7)) is allowed. If the requested dataset is not
-a forecast or the requested variable is static (e.g. orography) it will be ignored.}
 }
 \value{
 A grid, containing the requested components of the FWI system (either all or just FWI). See details.

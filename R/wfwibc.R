@@ -96,7 +96,7 @@ wfwibc <- function(dataset, dictionary = TRUE,
             multigrid <- makeMultiGrid(Tm, H, r, W)
             a[[i]] <- fwi(multigrid, lat = lat, return.all = return.all, 
                           parallel = parallel, init.pars = init.pars, 
-                          max.ncores = max.cores, ncores = ncores)$Data[,,,i]
+                          max.ncores = max.ncores, ncores = ncores)$Data[,,,i]
             
       }
       out <- W

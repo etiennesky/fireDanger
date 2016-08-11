@@ -6,7 +6,6 @@
 #' @param mask Optional. Grid of the land mask to be applied to the data.
 #' @param return.all Logical. Should all components of the FWI system be returned?. 
 #' Default to FALSE, indicating that only FWI is returned.
-#' @param mask Grid of the land mask to be applied to the data.
 #' @param init.pars A numeric vector of length 3 with the initialization values for the
 #'  FFMC, DMC and DC components, in this order. Default values as proposed by van Wagner (1987).
 #' @param parallel Logical. Should parallel execution be used?
@@ -85,7 +84,7 @@ fwiGrid <- function(multigrid,
                   suppressMessages(
                         fwi(multigrid = multigrid.y, mask = msk, lat = lat, return.all = return.all, 
                         parallel = parallel, init.pars = init.pars, 
-                        max.ncores = max.cores, ncores = ncores)$Data[,,1:xx,,drop=FALSE]
+                        max.ncores = max.ncores, ncores = ncores)$Data[,,1:xx,,drop=FALSE]
                   )
             })
             o.full <-  unname(do.call("abind", list(o, along = 2)))  

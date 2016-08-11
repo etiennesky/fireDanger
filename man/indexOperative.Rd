@@ -46,6 +46,12 @@ one to several (contiguous) months. For full year selections (not possible for a
 the argument value must be set to season = 1:12. If the requested variable is static (e.g. orography) it will be ignored.
 See details on the definition of temporal slices.}
 
+\item{lonLim}{Vector of length = 2, with minimum and maximum longitude coordinates, in decimal degrees, of the bounding box selected.
+For single-point queries, a numeric value with the longitude coordinate. If \code{NULL} (default), the whole longitudinal range
+ is selected (Note that this may lead to a large output object size).}
+
+\item{latLim}{Same as \code{lonLim}, but for the selection of the latitudinal range.}
+
 \item{years}{Optional vector of years to select. Default to all available years. If the requested variable is static (e.g. orography)
 it will be ignored. See details on the definition of temporal slices.}
 

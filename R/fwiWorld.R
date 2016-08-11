@@ -17,6 +17,10 @@
 #' See details on the definition of temporal slices.
 #' @param years Optional vector of years to select. Default to all available years. If the requested variable is static (e.g. orography) 
 #' it will be ignored. See details on the definition of temporal slices.
+#' @param lonLim Vector of length = 2, with minimum and maximum longitude coordinates, in decimal degrees, of the bounding box selected.
+#'  For single-point queries, a numeric value with the longitude coordinate. If \code{NULL} (default), the whole longitudinal range
+#'   is selected (Note that this may lead to a large output object size).
+#' @param latLim Same as \code{lonLim}, but for the selection of the latitudinal range.
 #' @param leadMonth Integer value indicating the lead forecast time, relative to the first month of season. Note that leadMonth=1 for 
 #' season=1 (January) corresponds to the December initialization. Default to 1 (i.e., 1 lead month forecast). If the dataset is not a 
 #' forecast or the requested variable is static (e.g. orography) it will be ignored. A message will be printed on screen in the first 
@@ -61,6 +65,7 @@ fwiWorld <- function(dataset = "WFDEI",
                      season = NULL, 
                      lonLim = NULL,
                      latLim = NULL,
+                     members = NULL,
                      leadMonth = 0,
                      mask = NULL,
                      return.all = FALSE, 
@@ -83,7 +88,7 @@ fwiWorld <- function(dataset = "WFDEI",
       suppressMessages(
       temp <- loadECOMS(dataset,  latLim = latLim, lonLim = lonLim, var = "tas", dictionary = dictionary, 
                         leadMonth = leadMonth,
-                        season = season[-1], years = years, time = "DD",
+                        season = season[-1], years = years, members = members, time = "DD",
                         aggr.d = "mean")
       )
       latdim <- which(downscaleR:::getDim(temp) == "lat")
@@ -94,16 +99,16 @@ fwiWorld <- function(dataset = "WFDEI",
             lat <- lats[i]
             message("------------processing latitude chunk ", i, " out of ", length(x)-1, "-------------")     
             Tm <- loadECOMS(dataset,  latLim = latLimchunk, lonLim = lonLim, var = "tas", dictionary = dictionary, 
-                          season = season, years = years, leadMonth = leadMonth, time = "DD",
+                          season = season, years = years, members = members, leadMonth = leadMonth, time = "DD",
                           aggr.d = "mean")
             H <- loadECOMS(dataset,  latLim = latLimchunk, lonLim = lonLim, var = "hurs", dictionary = dictionary, 
-                         season = season, years = years, leadMonth = leadMonth, time = "DD",
+                         season = season, years = years, members = members, leadMonth = leadMonth, time = "DD",
                          aggr.d = "min")
             r <- loadECOMS(dataset,  latLim = latLimchunk,  lonLim = lonLim, var = "tp", dictionary = dictionary, 
-                         season = season, years = years, time = "DD",
+                         season = season, years = years, members = members, time = "DD",
                          aggr.d = "sum")
             W <- loadECOMS(dataset,  latLim = latLimchunk, lonLim = lonLim, var = "wss", dictionary = dictionary, 
-                         season = season, years = years, time = "DD",
+                         season = season, years = years, members = members, time = "DD",
                          aggr.d = "mean")
             W$Data <- W$Data*3.6
             attr(W$Data, "dimensions") <- attr(r$Data, "dimensions") 
@@ -129,7 +134,7 @@ fwiWorld <- function(dataset = "WFDEI",
                   multigrid.y <- subsetGrid(multigrid, years = years[x])
                   fwi(multigrid = multigrid.y, mask = msk, lat = lat, return.all = return.all, 
                         parallel = parallel, init.pars = init.pars, 
-                        max.ncores = max.cores, ncores = ncores)$Data[,,1:xx,,drop=FALSE]
+                        max.ncores = max.ncores, ncores = ncores)$Data[,,1:xx,,drop=FALSE]
             })
             o.full <-  unname(do.call("abind", list(o, along = 2)))  
             months <- as.integer(substr(multigrid$Dates[[1]]$start, start = 6, stop = 7))

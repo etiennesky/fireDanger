@@ -6,13 +6,15 @@
 \usage{
 wfwiOP(dataset = "CFSv2_seasonal_operative", index = "fwi", url,
   mask = NULL, dictionary = TRUE, members = 1:24, aggr.mem = list(FUN =
-  NULL), season = NULL, lonLim = NULL, latLim = NULL, years = NULL,
+  NULL), season = NULL, years = NULL, lonLim = NULL, latLim = NULL,
   leadMonth = 0, return.all = FALSE, init.pars = c(85, 6, 15),
   parallel = FALSE, max.ncores = 16, ncores = NULL)
 }
 \arguments{
 \item{dataset}{A character string indicating the database to be accessed (partial matching is enabled).
 Currently accepted values are "CFSv2_seasonal".}
+
+\item{index}{Index to be computed, e.g. "fwi".}
 
 \item{url}{ncml directory.}
 
@@ -38,10 +40,18 @@ See details on the definition of temporal slices.}
 \item{years}{Optional vector of years to select. Default to all available years. If the requested variable is static (e.g. orography)
 it will be ignored. See details on the definition of temporal slices.}
 
+\item{lonLim}{Vector of length = 2, with minimum and maximum longitude coordinates, in decimal degrees, of the bounding box selected.
+For single-point queries, a numeric value with the longitude coordinate. If \code{NULL} (default), the whole longitudinal range
+ is selected (Note that this may lead to a large output object size).}
+
+\item{latLim}{Same as \code{lonLim}, but for the selection of the latitudinal range.}
+
 \item{leadMonth}{Integer value indicating the lead forecast time, relative to the first month of season. Note that leadMonth=1 for
 season=1 (January) corresponds to the December initialization. Default to 1 (i.e., 1 lead month forecast). If the dataset is not a
 forecast or the requested variable is static (e.g. orography) it will be ignored. A message will be printed on screen in the first
 case if its value is different from NULL. See details on initialization times.}
+
+\item{return.all}{Logical. Should all components of the FWI system be returned?.}
 
 \item{init.pars}{A numeric vector of length 3 with the initialization values for the
 FFMC, DMC and DC components, in this order. Default values as proposed by van Wagner (1987).}
@@ -52,8 +62,6 @@ FFMC, DMC and DC components, in this order. Default values as proposed by van Wa
 
 \item{ncores}{Integer number of cores used in parallel computation. Self-selected number of
  cores is used when \code{ncpus = NULL} (the default), or when \code{maxcores} exceeds the default \code{ncores} value.}
-
-\item{inex}{Index to be computed, e.g. "fwi".}
 }
 \value{
 A vector of the same length as the input vectors (minus possible missing observations),

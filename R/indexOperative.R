@@ -30,6 +30,10 @@
 #' season=1 (January) corresponds to the December initialization. Default to 1 (i.e., 1 lead month forecast). If the dataset is not a 
 #' forecast or the requested variable is static (e.g. orography) it will be ignored. A message will be printed on screen in the first 
 #' case if its value is different from NULL. See details on initialization times.
+#' @param lonLim Vector of length = 2, with minimum and maximum longitude coordinates, in decimal degrees, of the bounding box selected.
+#'  For single-point queries, a numeric value with the longitude coordinate. If \code{NULL} (default), the whole longitudinal range
+#'   is selected (Note that this may lead to a large output object size).
+#' @param latLim Same as \code{lonLim}, but for the selection of the latitudinal range.
 #' @param operative Path of the R object that contains the fwi of the operative dataset. Default is NULL, so the load and fwi is computed.
 #' @param init.pars A numeric vector of length 3 with the initialization values for the
 #'  FFMC, DMC and DC components, in this order. Default values as proposed by van Wagner (1987).
@@ -165,7 +169,7 @@ indexOperative <- function(dataset = "CFSv2_seasonal_operative",
 #' 
 #' @param dataset A character string indicating the database to be accessed (partial matching is enabled). 
 #' Currently accepted values are "CFSv2_seasonal".
-#' @param inex Index to be computed, e.g. "fwi".
+#' @param index Index to be computed, e.g. "fwi".
 #' @param url ncml directory.
 #' @param mask Directory (including file name) of the land-mask grid (*.rda).
 #' @param dictionary A logical flag indicating if a dictionary is used for variable homogenization. Default (strongly recommended) 
@@ -183,10 +187,15 @@ indexOperative <- function(dataset = "CFSv2_seasonal_operative",
 #' See details on the definition of temporal slices.
 #' @param years Optional vector of years to select. Default to all available years. If the requested variable is static (e.g. orography) 
 #' it will be ignored. See details on the definition of temporal slices.
+#' @param lonLim Vector of length = 2, with minimum and maximum longitude coordinates, in decimal degrees, of the bounding box selected.
+#'  For single-point queries, a numeric value with the longitude coordinate. If \code{NULL} (default), the whole longitudinal range
+#'   is selected (Note that this may lead to a large output object size).
+#' @param latLim Same as \code{lonLim}, but for the selection of the latitudinal range.
 #' @param leadMonth Integer value indicating the lead forecast time, relative to the first month of season. Note that leadMonth=1 for 
 #' season=1 (January) corresponds to the December initialization. Default to 1 (i.e., 1 lead month forecast). If the dataset is not a 
 #' forecast or the requested variable is static (e.g. orography) it will be ignored. A message will be printed on screen in the first 
 #' case if its value is different from NULL. See details on initialization times.
+#' @param return.all Logical. Should all components of the FWI system be returned?. 
 #' @param init.pars A numeric vector of length 3 with the initialization values for the
 #'  FFMC, DMC and DC components, in this order. Default values as proposed by van Wagner (1987).
 #' @param parallel Logical. Should parallel execution be used?
@@ -219,9 +228,9 @@ wfwiOP <- function(dataset = "CFSv2_seasonal_operative",
                         members = 1:24, 
                         aggr.mem = list(FUN = NULL),
                         season = NULL, 
+                        years = NULL, 
                         lonLim = NULL, 
                         latLim = NULL,
-                        years = NULL, 
                         leadMonth = 0, 
                         return.all = FALSE, 
                         init.pars = c(85, 6, 15),
@@ -255,7 +264,7 @@ wfwiOP <- function(dataset = "CFSv2_seasonal_operative",
                   suppressWarnings(
                   Tm <- tryCatch({loadECOMS(dataset,  latLim = latLimchunk, var = "tas", dictionary = dictionary, 
                             members = members, season = season, years = years, leadMonth = leadMonth, time = "DD",
-                            aggr.d = "mean", url = dataPath, lonLim = lonLim)}, error = function(err){NULL})
+                            aggr.d = "mean", url = url, lonLim = lonLim)}, error = function(err){NULL})
                   )
             }
             H <- NULL
@@ -265,7 +274,7 @@ wfwiOP <- function(dataset = "CFSv2_seasonal_operative",
                   suppressWarnings(
             H <- tryCatch({loadECOMS(dataset,  latLim = latLimchunk, var = "hurs", dictionary = dictionary, 
                            members = members, season = season, years = years, leadMonth = leadMonth, time = "DD",
-                           aggr.d = "min", url = dataPath, lonLim = lonLim)}, error = function(err){NULL})
+                           aggr.d = "min", url = url, lonLim = lonLim)}, error = function(err){NULL})
                   )
             }
             r <- NULL
@@ -275,7 +284,7 @@ wfwiOP <- function(dataset = "CFSv2_seasonal_operative",
                   suppressWarnings(
             r <- tryCatch({loadECOMS(dataset,  latLim = latLimchunk, var = "tp", dictionary = dictionary, 
                            members = members, season = season, years = years, leadMonth = leadMonth, time = "DD",
-                           aggr.d = "sum", url = dataPath, lonLim = lonLim)}, error = function(err){NULL})
+                           aggr.d = "sum", url = url, lonLim = lonLim)}, error = function(err){NULL})
                   )
             }
             W <- NULL
@@ -285,7 +294,7 @@ wfwiOP <- function(dataset = "CFSv2_seasonal_operative",
                   suppressWarnings(
             W <- tryCatch({loadECOMS(dataset,  latLim = latLimchunk, var = "wss", dictionary = dictionary, 
                            members = members, season = season, years = years, leadMonth = leadMonth, time = "DD",
-                           aggr.d = "mean", url = dataPath, lonLim = lonLim)}, error = function(err){NULL})
+                           aggr.d = "mean", url = url, lonLim = lonLim)}, error = function(err){NULL})
                   )
             }
             dimNames <- attr(W$Data, "dimensions")
@@ -308,7 +317,7 @@ wfwiOP <- function(dataset = "CFSv2_seasonal_operative",
             if(index == "fwi"){
             b <- fwi(multigrid, mask = msk, lat = lat, return.all = return.all, 
                      parallel = parallel, init.pars = init.pars, 
-                     max.ncores = max.cores, ncores = ncores)$Data[,,1:xx,,drop=FALSE]
+                     max.ncores = max.ncores, ncores = ncores)$Data[,,1:xx,,drop=FALSE]
             }
             gc()
            

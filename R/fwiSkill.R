@@ -2,7 +2,15 @@
 #' 
 #' @description Skill calculation with function veriApply
 #' 
-#' @param ... same parameters as in function veriApply from package easyVerification
+#' @param obs Grid of the observation data
+#' @param fcst Grid of the seasonal forecast data
+#' @param verifun Name of function to compute verification metric (score, skill score). 
+#' Type help(veriApply) for details.
+#' @param prob Probability threshold for category forecasts (Type help(veriApply) for details).
+#' @param threshold Aabsolute threshold for category forecasts (Type help(veriApply) for details).
+#' @param parallel Logical. Should parallel execution be used?
+#' @param na.rm Logical. Should incomplete forecasts be used?
+#' 
 #' @return A grid of the skill scores.
 #'  
 #' @author M.Iturbide
