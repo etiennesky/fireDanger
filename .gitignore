@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.RData
+.project
+ignore
+commonR
+init.R
+downscaleR.Rproj
+.Rprofile
+*.Rbuildignore
+.~lock.fwimean_CFSv2_seasonal_operative_6_8.csv#

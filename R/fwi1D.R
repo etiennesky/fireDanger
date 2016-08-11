@@ -1,8 +1,8 @@
-#' @title Fire Weather Index
+#' @title Fire Weather Index applied to 1D data
 #' 
-#' @description Implementation of the Canadian Fire Weather Index System
+#' @description Implementation of the Canadian Fire Weather Index System to 1D data
 #' 
-#' @param date
+#' @param months Vector of integers corresponding to the months in the data
 #' @param Tm Vector of temperature records (deg. Celsius)
 #' @param H Vector of relative humidity records (\%)
 #' @param r Vector of last 24-h accumulated precipitation (mm)
@@ -31,14 +31,12 @@
 #' 
 #' van Wagner, C.E., Pickett, T.L., 1985. Equations and FORTRAN program for the Canadian forest fire weather index system (Forestry Tech. Rep. No. 33). Canadian Forestry Service, Ottawa, Canada.
 #' 
-#' @author J. Bedia \email{joaquin.bedia@@gmail.com}, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
+#' @author J. Bedia, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
 #' 
-#'
 
-fwi <- function (date, Tm, H, r, W, lat = 46, return.all = FALSE, init.pars = c(85, 6, 15)) {
-      date <- as.POSIXlt(date)
-      mes <- date$mon + 1
-      date <- NULL
+
+fwi1D <- function (months, Tm, H, r, W, lat = 46, return.all = FALSE, init.pars = c(85, 6, 15)) {
+      mes <- months
       ret <- return.all
       rm.ind <- which(!complete.cases(Tm, H, r, W))
       if (length(rm.ind) > 0) {
