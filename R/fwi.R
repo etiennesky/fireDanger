@@ -3,7 +3,7 @@
 #' @description Implementation of the Canadian Fire Weather Index System for multigrids
 #' 
 #' @param multigrid containing Tm (temperature records in deg. Celsius); H (relative humidity records in \%);
-#' r (last 24-h accumulated precipitation in mm); W (wind velocity records in Km/h).
+#' r (last 24-h accumulated precipitation in mm); W (wind velocity records in Km/h). See the Warning section.
 #' @param mask Optional. Binary (0 an 1) Grid.
 #' @param latLim Same as \code{lonLim} argument, but for latitude.
 #' @param lonLim Vector of length = 2, with minimum and maximum longitude coordinates, in decimal degrees,
@@ -20,6 +20,14 @@
 #' 
 #' @return A vector of the same length as the input vectors (minus possible missing observations),
 #' containing the requested components of the FWI system (either all or just FWI). See details.
+#' 
+#' @section Warning:
+#' 
+#' The variables composing the input multigrid need to have standard names, as defined by the dictionary
+#'  (these names are stored in the \code{multigrid$Variable$varName} component).
+#' These are: \code{"tas"} for temperature, \code{"tp"} for precipitation, \code{"wss} for windspeed. In the case of relative humidity,
+#' either \code{"hurs"} or \code{"hursmin"} are accepted, the latter in case of FWI calculations according to the \dquote{proxy} version
+#' described in Bedia \emph{et al} 2014.
 #' 
 #' @section Daylength adjustment factors: 
 #' By default, the function applies the original FWI daylength adjustment factors for DC and DMC (van Wagner 1987),
@@ -49,29 +57,33 @@ fwi <- function(multigrid, mask = NULL, lonLim = NULL, latLim = NULL, lat = 46, 
       if (parallel.pars$hasparallel) {
             apply_fun <- function(...) {
                   parallel::parLapply(cl = parallel.pars$cl, ...)
-                  }
+            }
             on.exit(parallel::stopCluster(parallel.pars$cl))
       } else {
             apply_fun <- lapply      
       }
-#       if (!is.null(lonLim)){
-#             multigrid <- subsetGrid(multigrid, lonLim = lonLim)
-#       }
-#       if (!is.null(latLim)){
-#             multigrid <- subsetGrid(multigrid, lonLim = latLim)
-#       }
+      #       if (!is.null(lonLim)){
+      #             multigrid <- subsetGrid(multigrid, lonLim = lonLim)
+      #       }
+      #       if (!is.null(latLim)){
+      #             multigrid <- subsetGrid(multigrid, lonLim = latLim)
+      #       }
       cords <- getCoordinates(multigrid)
-      if(!is.null(mask)){
-      mask1 <- downscaleR:::redim(mask, member = F, runtime = F, drop = F)
+      if (!is.null(mask)) {
+            mask1 <- downscaleR:::redim(mask,
+                                        member = FALSE,
+                                        runtime = FALSE,
+                                        drop = FALSE)
       }
-      Tm1 <- subsetGrid(multigrid, var = "tas")
-      Tm1 <- downscaleR:::redim(Tm1, drop = F)
-      H1  <- subsetGrid(multigrid, var = "hurs")
-      H1 <- downscaleR:::redim(H1, drop = F)
+      varnames <- multigrid$Variable$varName
+      Tm1 <- subsetGrid(multigrid, var = grep("tas", varnames, value = TRUE))
+      Tm1 <- downscaleR:::redim(Tm1, drop = FALSE)
+      H1  <- subsetGrid(multigrid, var = grep("hurs", varnames, value = TRUE))
+      H1 <- downscaleR:::redim(H1, drop = FALSE)
       r1  <- subsetGrid(multigrid, var = "tp")
-      r1 <- downscaleR:::redim(r1, drop = F)
+      r1 <- downscaleR:::redim(r1, drop = FALSE)
       W1  <- subsetGrid(multigrid, var = "wss")
-      W1 <- downscaleR:::redim(W1, drop = F)
+      W1 <- downscaleR:::redim(W1, drop = FALSE)
       fwigrid <- W1
       n.mem <- downscaleR:::getShape(W1, "member")
       message("[", Sys.time(), "] Calculating FWI...")
@@ -80,18 +92,25 @@ fwi <- function(multigrid, mask = NULL, lonLim = NULL, latLim = NULL, lat = 46, 
             H2 <- array3Dto2Dmat(subsetGrid(H1, members = x)$Data)
             r2 <- array3Dto2Dmat(subsetGrid(r1, members = x)$Data)
             W2 <- array3Dto2Dmat(subsetGrid(W1, members = x)$Data)
-            if(!is.null(mask)){
+            if (!is.null(mask)) {
                   mskmsk <- array3Dto2Dmat(mask1$Data)[1,]
                   ind <- which(mskmsk > 0)
-            }else{
+            } else {
                   ind <- which(!is.na(Tm2))
             }
             b <- array(dim = dim(Tm2))
-            if(length(ind)!=0){
-                  for(i in 1:length(ind)){
-                        z <- tryCatch({fwi1D(months, Tm = Tm2[,ind[i]], H = H2[,ind[i]], r = r2[,ind[i]], W = W2[,ind[i]], lat = lat, return.all = return.all, init.pars = init.pars)},
-                                 error = function(err){rep(NA, nrow(b))})
-                        if(length(z) < length(b[,1])) z <- rep(NA, length(b[,1]))
+            if (length(ind) != 0) {
+                  for (i in 1:length(ind)) {
+                        z <- tryCatch({fwi1D(months,
+                                             Tm = Tm2[,ind[i]],
+                                             H = H2[,ind[i]],
+                                             r = r2[,ind[i]],
+                                             W = W2[,ind[i]],
+                                             lat = lat,
+                                             return.all = return.all,
+                                             init.pars = init.pars)},
+                                      error = function(err){rep(NA, nrow(b))})
+                        if (length(z) < length(b[,1])) z <- rep(NA, length(b[,1]))
                         b[,ind[i]] <- z
                   }
             }
