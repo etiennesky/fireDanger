@@ -1,6 +1,6 @@
-#' @title Fire Weather Index (FWI)
+#' @title Fire Weather Index (FWI) from multigrid
 #' 
-#' @description Implementation of the Canadian Fire Weather Index System 
+#' @description A wrapper of function \code{fwi} to handle multigrids
 #' 
 #' @param multigrid A multigrid of the variables needed to compute the FWI.
 #' @param mask Optional. Grid of the land mask to be applied to the data.
@@ -28,6 +28,9 @@
 #' 
 #' van Wagner, C.E., Pickett, T.L., 1985. Equations and FORTRAN program for the Canadian forest fire weather index system (Forestry Tech. Rep. No. 33). Canadian Forestry Service, Ottawa, Canada.
 #' 
+#' Bedia, J., Herrera, S., Camia, A., Moreno, J.M., Gutierrez, J.M., 2014. Forest Fire Danger Projections in the Mediterranean using ENSEMBLES Regional Climate Change Scenarios. Clim Chang 122, 185--199. doi:10.1007/s10584-013-1005-z
+
+#' 
 #' @author J. Bedia \& M.Iturbide, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
 #' @export
 #' @importFrom abind abind
@@ -44,47 +47,48 @@ fwiGrid <- function(multigrid,
                      max.ncores = 16,
                      ncores = NULL){
       x <-  c(-90, -80, -70, -60, -50, -40, -30, -20, -10, 1, 10, 20, 30, 40, 50, 60, 70, 80, 90)
-      
       latLim <- range(multigrid$xyCoords$y)
       lonLim <- range(multigrid$xyCoords$x)
-      latind <- findInterval(latLim, x)[1] : findInterval(latLim, x)[2]
-      if(x[latind[length(latind)]] < latLim[2]) latind[3] <- latind[2]+1
+      latind <- findInterval(latLim, x)[1]:findInterval(latLim, x)[2]
+      if (x[latind[length(latind)]] < latLim[2]) latind[3] <- latind[2] + 1
       x <- x[latind]
-      lats <- seq(min(x)+5, max(x)-5, 10) 
-      if(x[length(x)] > latLim[2]) x[length(x)] <- latLim[2]
-      if(x[1] < latLim[1]) x[1] <- latLim[1]
-      
+      lats <- seq(min(x) + 5, max(x) - 5, 10) 
+      if (x[length(x)] > latLim[2]) x[length(x)] <- latLim[2]
+      if (x[1] < latLim[1]) x[1] <- latLim[1]
       dataset <- attr(multigrid, "dataset")
       years <- unique(getYearsAsINDEX(multigrid))
       latdim <- which(downscaleR:::getDim(multigrid) == "lat")
       a <- list()
       message("[", Sys.time(), "] Calculating FWI..")
-      for(i in 1:(length(x)-1)){
-            latLimchunk <- c(x[i], x[i+1])
+      for (i in 1:(length(x) - 1)) {
+            latLimchunk <- c(x[i], x[i + 1])
             lat <- lats[i]
             multigrid_chunk <- subsetGrid(multigrid, latLim = latLimchunk)
-            if(is.null(mask) & dataset == "WFDEI"){
+            if (is.null(mask) & dataset == "WFDEI") {
                   msk <- subsetGrid(multigrid_chunk, var = "tas")
                   msk$Data <- msk$Data[1,,]
                   msk$Data[which(!is.na(msk$Data))] <- 100
                   msk$Data[which(is.na(msk$Data))] <- 0
                   attr(msk$Data, "dimensions") <- c("lat", "lon")
-            }else if(!is.null(mask)){
-                  msk <- subsetGrid(mask, latLim = latLimchunk, lonLim = lonLim, outside = T)
-            }else{
+            } else if (!is.null(mask)) {
+                  msk <- subsetGrid(mask, latLim = latLimchunk, lonLim = lonLim, outside = TRUE)
+            } else {
                   message("The use of a land mask is recommended")
             }
-            if(i != (length(x)-1)){
-                  xx <- dim(multigrid_chunk$Data)[latdim]-1
-            }else{
+            if (i != (length(x) - 1)) {
+                  xx <- dim(multigrid_chunk$Data)[latdim] - 1
+            } else {
                   xx <- dim(multigrid_chunk$Data)[latdim]
             }
-            o <- lapply(1:length(years), function(x){
+            o <- lapply(1:length(years), function(x) {
                   multigrid.y <- subsetGrid(multigrid_chunk, years = years[x])
                   suppressMessages(
-                        fwi(multigrid = multigrid.y, mask = msk, lat = lat, return.all = return.all, 
-                        parallel = parallel, init.pars = init.pars, 
-                        max.ncores = max.ncores, ncores = ncores)$Data[,,1:xx,,drop=FALSE]
+                        fwi(multigrid = multigrid.y,
+                            mask = msk,
+                            lat = lat,
+                            return.all = return.all, 
+                            parallel = parallel, init.pars = init.pars, 
+                            max.ncores = max.ncores, ncores = ncores)$Data[,,1:xx,,drop = FALSE]
                   )
             })
             o.full <-  unname(do.call("abind", list(o, along = 2)))  
