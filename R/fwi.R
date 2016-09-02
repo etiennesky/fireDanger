@@ -24,9 +24,9 @@
 #' @section Warning:
 #' 
 #' The variables composing the input multigrid need to have standard names, as defined by the dictionary
-#'  (these names are stored in the \code{multigrid$Variable$varName} component).
-#' These are: \code{"tas"} for temperature, \code{"tp"} for precipitation, \code{"wss} for windspeed. In the case of relative humidity,
-#' either \code{"hurs"} or \code{"hursmin"} are accepted, the latter in case of FWI calculations according to the \dquote{proxy} version
+#'  (their names are stored in the \code{multigrid$Variable$varName} component).
+#' These are: \code{"tas"} for temperature, \code{"tp"} for precipitation, \code{"wss"} for windspeed. In the case of relative humidity,
+#' either \code{"hurs"} or \code{"hursmin"} are accepted, the latter in case of FWI calculations according to the \dQuote{proxy} version
 #' described in Bedia \emph{et al} 2014.
 #' 
 #' @section Daylength adjustment factors: 
@@ -51,7 +51,7 @@
 fwi <- function(multigrid, mask = NULL, lonLim = NULL, latLim = NULL, lat = 46, return.all = FALSE, init.pars = c(85, 6, 15),
                 parallel = FALSE,
                 max.ncores = 16,
-                ncores = NULL){
+                ncores = NULL) {
       months <- as.integer(substr(multigrid$Dates[[1]]$start, start = 6, stop = 7))
       parallel.pars <- parallelCheck(parallel, max.ncores, ncores)
       if (parallel.pars$hasparallel) {
@@ -101,14 +101,14 @@ fwi <- function(multigrid, mask = NULL, lonLim = NULL, latLim = NULL, lat = 46, 
             b <- array(dim = dim(Tm2))
             if (length(ind) != 0) {
                   for (i in 1:length(ind)) {
-                        z <- tryCatch({fwi1D(months,
+                        z <- tryCatch({suppressWarnings(fwi1D(months,
                                              Tm = Tm2[,ind[i]],
                                              H = H2[,ind[i]],
                                              r = r2[,ind[i]],
                                              W = W2[,ind[i]],
                                              lat = lat,
                                              return.all = return.all,
-                                             init.pars = init.pars)},
+                                             init.pars = init.pars))},
                                       error = function(err){rep(NA, nrow(b))})
                         if (length(z) < length(b[,1])) z <- rep(NA, length(b[,1]))
                         b[,ind[i]] <- z
