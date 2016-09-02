@@ -8,7 +8,7 @@
 #' @param r Vector of last 24-h accumulated precipitation (mm)
 #' @param W Vector of wind velocity records (Km/h)
 #' @param lat Optional. Latitude of the records (in decimal degrees). Default to 46,
-#' applying the default parameters of the original FWI System, developed in Canada. See details.
+#' applying the default parameters of the original FWI System, developed in Canada. See Daylength Adjustment details.
 #' @param return.all Logical. Should all components of the FWI system be returned?. 
 #' Default to FALSE, indicating that only FWI is returned.
 #' @param init.pars A numeric vector of length 3 with the initialization values for the
@@ -28,10 +28,10 @@
 #' Lawson and Armitage (2008).
 #' 
 #' @section FWI spin-up:
-#' FWI is initializaed with some values for FFMC, DMC and DC components. This means that the first values of the series do not correspond to 
-#' reality, until the index is iterated over several time steps (typically a few days) and is stabilized.
-#'  Thus, the first index values can be removed from the output. The number of days at the beginning of the series
-#'   are controlled via the \code{spin.up} argument.
+#' FWI is initializaed with some values for FFMC, DMC and DC components. This means that the first values of the series are not reliable,
+#'  until the index is iterated over several time steps and stabilizes (typically a few days suffice).
+#'  Thus, the first index values can be optionally set to \code{NA}. The number of days at the beginning of the series to be set to \code{NA}
+#'   is controlled via the \code{spin.up} argument.
 #' 
 #' @references
 #' Lawson, B.D. & Armitage, O.B., 2008. Weather guide for the Canadian Forest Fire Danger Rating System. Northern Forestry Centre, Edmonton (Canada).

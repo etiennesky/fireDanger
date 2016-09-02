@@ -45,6 +45,9 @@
 #' @return A vector of the same length as the input vectors (minus possible missing observations),
 #' containing the requested components of the FWI system (either all or just FWI). See details.
 #' 
+#' @importFrom stats quantile
+#' @importFrom utils write.table
+#' 
 #' @section Daylength adjustment factors: 
 #' By default, the function applies the original FWI daylength adjustment factors for DC and DMC (van Wagner 1987),
 #'  although it is possible to adjust them by as a function of latitude through the argument \code{lat}.

@@ -10,15 +10,15 @@ Suggests:
     visualizeR
 Type: Package
 Title: Fire weather index calculation
-Version: 0.0-0
-Date: 2016-06-13
+Version: 0.0-1
+Date: 2016-09-02
 Authors@R: as.person(c(
     "Santander Meteorology Group <http://meteo.unican.es> [aut]",
     "Joaquin Bedia <bediaj@unican.es> [ctb, cre]",
     "Maialen Iturbide <miturbide@ifca.unican.es> [ctb]",
     "Rodrigo Manzanas <rmanzanas@ifca.unican.es> [ctb]",
     "Max Tuni <max@predictia.es> [ctb]"))
-BugReports: https://github.com/SantanderMetGroup/downscaleR/issues
+BugReports: https://github.com/SantanderMetGroup/fireDanger/issues
 URL: https://github.com/SantanderMetGroup/fireDanger
 Description: Tools for computing the Fire Weather Index, the package is conceived 
 	for dealing with forecast (multi-member) data.

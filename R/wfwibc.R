@@ -31,6 +31,17 @@
 #' @param max.ncores Integer. Upper bound for user-defined number of cores.
 #' @param ncores Integer number of cores used in parallel computation. Self-selected number of
 #'  cores is used when \code{ncpus = NULL} (the default), or when \code{maxcores} exceeds the default \code{ncores} value.
+#' @param bc.multigrid bc.multigrid
+#' @param method method
+#' @param cross.val cross.val
+#' @param folds folds
+#' @param window window
+#' @param scaling.type scaling.type
+#' @param wet.threshold wet.threshold
+#' @param n.quantiles n.quantiles
+#' @param extrapolation extrapolation
+#' @param theta theta
+
 #' 
 #' @return A vector of the same length as the input vectors (minus possible missing observations),
 #' containing the requested components of the FWI system (either all or just FWI). See details.

@@ -1,8 +1,8 @@
 #' @title Fire Weather Index (FWI) from multigrid
 #' 
-#' @description A wrapper of function \code{fwi} to handle multigrids
+#' @description A wrapper of function \code{\link{fwi1D}} to handle multigrids
 #' 
-#' @param multigrid A multigrid of the variables needed to compute the FWI.
+#' @param multigrid A multigrid of the variables needed to compute the FWI. See the Warning section
 #' @param mask Optional. Grid of the land mask to be applied to the data.
 #' @param return.all Logical. Should all components of the FWI system be returned?. 
 #' Default to FALSE, indicating that only FWI is returned.
@@ -15,11 +15,23 @@
 #' 
 #' @return A grid, containing the requested components of the FWI system (either all or just FWI). See details.
 #' 
+#' @details 
+#' 
+#' In order to efficiently handle large datasets, the function internally splits the spatial domain in convenient latitudinal chunks.  
+#' 
 #' @section Daylength adjustment factors: 
-#' By default, the function applies the original FWI daylength adjustment factors for DC and DMC (van Wagner 1987),
-#'  although it is possible to adjust them by as a function of latitude through the argument \code{lat}.
-#' The reference values used for each latitudinal range are those indicated in p.71 and Tables A3.1 and A3.2 (p69) in
-#' Lawson and Armitage (2008).
+#' In this case, daylength adjustment factors are automatically set by the funciton according to the
+#'  reference values indicated in p.71 and Tables A3.1 and A3.2 (p69) in Lawson and Armitage (2008).
+#' 
+#' @section Warning:
+#' 
+#' The variables composing the input multigrid need to have standard names, as defined by the dictionary
+#'  (their names are stored in the \code{multigrid$Variable$varName} component).
+#' These are: \code{"tas"} for temperature, \code{"tp"} for precipitation, \code{"wss"} for windspeed. In the case of relative humidity,
+#' either \code{"hurs"} or \code{"hursmin"} are accepted, the latter in case of FWI calculations according to the \dQuote{proxy} version
+#' described in Bedia \emph{et al} 2014.
+#' 
+#' Be aware of the required input units.
 #' 
 #' @references
 #' Lawson, B.D. & Armitage, O.B., 2008. Weather guide for the Canadian Forest Fire Danger Rating System. Northern Forestry Centre, Edmonton (Canada).
@@ -29,23 +41,13 @@
 #' van Wagner, C.E., Pickett, T.L., 1985. Equations and FORTRAN program for the Canadian forest fire weather index system (Forestry Tech. Rep. No. 33). Canadian Forestry Service, Ottawa, Canada.
 #' 
 #' Bedia, J., Herrera, S., Camia, A., Moreno, J.M., Gutierrez, J.M., 2014. Forest Fire Danger Projections in the Mediterranean using ENSEMBLES Regional Climate Change Scenarios. Clim Chang 122, 185--199. doi:10.1007/s10584-013-1005-z
-
-#' 
-#' @author J. Bedia \& M.Iturbide, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
+#'
+#' @seealso \code{\link{fwi1D}} 
+#' @author J. Bedia \& M.Iturbide
 #' @export
-#' @importFrom abind abind, asub
+#' @importFrom abind abind asub
 #' @importFrom downscaleR subsetGrid
 #' @importFrom downscaleR getYearsAsINDEX
-
-###########33
-multigrid = multigrid_obs
-mask = NULL
-return.all = FALSE
-init.pars = c(85, 6, 15)
-parallel = FALSE
-max.ncores = 16
-ncores = NULL
-#############
 
 fwiGrid <- function(multigrid,
                     mask = NULL,
@@ -53,7 +55,7 @@ fwiGrid <- function(multigrid,
                     init.pars = c(85, 6, 15),
                     parallel = FALSE,
                     max.ncores = 16,
-                    ncores = NULL){
+                    ncores = NULL) {
       x <-  c(-90, -80, -70, -60, -50, -40, -30, -20, -10, 1, 10, 20, 30, 40, 50, 60, 70, 80, 90)
       latLim <- range(multigrid$xyCoords$y)
       lonLim <- range(multigrid$xyCoords$x)
