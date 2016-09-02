@@ -99,11 +99,6 @@ fwiGrid <- function(multigrid,
                   message("The use of a land mask is recommended")
                   msk <- NULL
             }
-            if (i != (length(x) - 1)) {
-                  xx <- dim(multigrid_chunk$Data)[latdim] - 1
-            } else {
-                  xx <- dim(multigrid_chunk$Data)[latdim]
-            }
             o <- lapply(1:length(years), function(x) {
                   multigrid.y <- subsetGrid(multigrid_chunk, years = years[x])
                   suppressMessages(
@@ -112,22 +107,18 @@ fwiGrid <- function(multigrid,
                             lat = lat,
                             return.all = return.all, 
                             parallel = parallel, init.pars = init.pars, 
-                            max.ncores = max.ncores, ncores = ncores)$Data[,,1:xx,,drop = FALSE]
+                            max.ncores = max.ncores, ncores = ncores)$Data
                   )
             })
-            a[[i]] <-  unname(do.call("abind", list(o, along = 2)))  
-            ## o.full <-  unname(do.call("abind", list(o, along = 2)))  
-            ## months <- as.integer(substr(multigrid$Dates[[1]]$start, start = 6, stop = 7))
-            ## month.ind <- which(months == months[1])
-            ## a[[i]] <- o.full[,-month.ind,,]
+            ind.time <- grep("^time", dimNames)
+            a[[i]] <-  unname(do.call("abind", list(o, along = ind.time)))  
       }
+      a <- lapply(a, "drop")
       message("[", Sys.time(), "] Done.")
+      out <- unname(do.call("abind", list(a, along = latdim - 1)))
       temp <- subsetGrid(multigrid, var = "tas")
-      dimNames <- attr(temp$Data, "dimensions")
-      latdim.f <- which(downscaleR:::getDim(temp) == "lat")
-      out <- unname(do.call("abind", list(a, along = latdim.f)))
       temp$Data <- out
-      attr(temp$Data, "dimensions") <- dimNames
+      attr(temp$Data, "dimensions") <- dimNames[-1]
       temp$Variable$varName <- "fwi"
       attr(temp$Variable, "use_dictionary") <- FALSE
       attr(temp$Variable, "description") <- "Fire Weather Index"
