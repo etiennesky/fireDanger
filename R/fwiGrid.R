@@ -33,19 +33,27 @@
 #' 
 #' @author J. Bedia \& M.Iturbide, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
 #' @export
-#' @importFrom abind abind
+#' @importFrom abind abind, asub
 #' @importFrom downscaleR subsetGrid
 #' @importFrom downscaleR getYearsAsINDEX
 
-
+###########33
+multigrid = multigrid_obs
+mask = NULL
+return.all = FALSE
+init.pars = c(85, 6, 15)
+parallel = FALSE
+max.ncores = 16
+ncores = NULL
+#############
 
 fwiGrid <- function(multigrid,
-                     mask = NULL,
-                     return.all = FALSE, 
-                     init.pars = c(85, 6, 15),
-                     parallel = FALSE,
-                     max.ncores = 16,
-                     ncores = NULL){
+                    mask = NULL,
+                    return.all = FALSE, 
+                    init.pars = c(85, 6, 15),
+                    parallel = FALSE,
+                    max.ncores = 16,
+                    ncores = NULL){
       x <-  c(-90, -80, -70, -60, -50, -40, -30, -20, -10, 1, 10, 20, 30, 40, 50, 60, 70, 80, 90)
       latLim <- range(multigrid$xyCoords$y)
       lonLim <- range(multigrid$xyCoords$x)
@@ -57,13 +65,26 @@ fwiGrid <- function(multigrid,
       if (x[1] < latLim[1]) x[1] <- latLim[1]
       dataset <- attr(multigrid, "dataset")
       years <- unique(getYearsAsINDEX(multigrid))
-      latdim <- which(downscaleR:::getDim(multigrid) == "lat")
+      dimNames <- downscaleR:::getDim(multigrid)
+      latdim <- grep("lat", dimNames)
       a <- list()
+      aux.list <- a
       message("[", Sys.time(), "] Calculating FWI..")
       for (i in 1:(length(x) - 1)) {
             latLimchunk <- c(x[i], x[i + 1])
             lat <- lats[i]
             multigrid_chunk <- subsetGrid(multigrid, latLim = latLimchunk)
+            aux.list[[i]] <- multigrid_chunk$xyCoords$y
+            ## This part avoids repeating latitudes in the extremes as a result of subsetGrid
+            if (i > 1) {
+                  lat.rep <- intersect(aux.list[[i]], aux.list[[i - 1]])
+                  if (length(lat.rep) > 0) {
+                        lat.rep.ind <- match(lat.rep, multigrid_chunk$xyCoords$y)
+                        multigrid_chunk$Data <- asub(multigrid_chunk$Data, idx = -lat.rep.ind, dims = latdim)
+                        attr(multigrid_chunk$Data, "dimensions") <- dimNames
+                        multigrid_chunk$xyCoords$y <- multigrid_chunk$xyCoords$y[-lat.rep.ind]
+                  }
+            }
             if (is.null(mask) & dataset == "WFDEI") {
                   msk <- subsetGrid(multigrid_chunk, var = "tas")
                   msk$Data <- msk$Data[1,,]
@@ -74,6 +95,7 @@ fwiGrid <- function(multigrid,
                   msk <- subsetGrid(mask, latLim = latLimchunk, lonLim = lonLim, outside = TRUE)
             } else {
                   message("The use of a land mask is recommended")
+                  msk <- NULL
             }
             if (i != (length(x) - 1)) {
                   xx <- dim(multigrid_chunk$Data)[latdim] - 1
@@ -91,11 +113,11 @@ fwiGrid <- function(multigrid,
                             max.ncores = max.ncores, ncores = ncores)$Data[,,1:xx,,drop = FALSE]
                   )
             })
-            o.full <-  unname(do.call("abind", list(o, along = 2)))  
-            months <- as.integer(substr(multigrid$Dates[[1]]$start, start = 6, stop = 7))
-            multigrid.y <- NULL
-            month.ind <- which(months == months[1])
-            a[[i]] <- o.full[,-month.ind,,]
+            a[[i]] <-  unname(do.call("abind", list(o, along = 2)))  
+            ## o.full <-  unname(do.call("abind", list(o, along = 2)))  
+            ## months <- as.integer(substr(multigrid$Dates[[1]]$start, start = 6, stop = 7))
+            ## month.ind <- which(months == months[1])
+            ## a[[i]] <- o.full[,-month.ind,,]
       }
       message("[", Sys.time(), "] Done.")
       temp <- subsetGrid(multigrid, var = "tas")
@@ -107,12 +129,7 @@ fwiGrid <- function(multigrid,
       temp$Variable$varName <- "fwi"
       attr(temp$Variable, "use_dictionary") <- FALSE
       attr(temp$Variable, "description") <- "Fire Weather Index"
-      attr(temp$Variable, "units") <-  "none"
+      attr(temp$Variable, "units") <-  "adimensional"
       attr(temp$Variable, "longname") <- "Fire Weather Index"
-      #       if(length(years) > 1){
-      #             yname <- paste(years[1], "_", years[length(years)], sep = "")
-      #       }else{
-      #             yname <- years
-      #       }
       return(temp)
 }
