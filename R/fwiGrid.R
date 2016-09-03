@@ -94,7 +94,14 @@ fwiGrid <- function(multigrid,
                   msk$Data[which(is.na(msk$Data))] <- 0
                   attr(msk$Data, "dimensions") <- c("lat", "lon")
             } else if (!is.null(mask)) {
+                  dimNames.mask <- downscaleR:::getDim(mask)
                   msk <- subsetGrid(mask, latLim = latLimchunk, lonLim = lonLim, outside = TRUE)
+                  ## This part avoids repeating latitudes in the extremes as a result of subsetGrid
+                  if (i > 1 && length(lat.rep) > 0) {
+                        msk$Data <- asub(msk$Data, idx = -lat.rep.ind, dims = grep("lat", dimNames.mask))
+                        attr(msk$Data, "dimensions") <- dimNames.mask
+                        msk$xyCoords$y <- msk$xyCoords$y[-lat.rep.ind]
+                  }
             } else {
                   message("The use of a land mask is recommended")
                   msk <- NULL
