@@ -99,7 +99,7 @@ fwi <- function(multigrid, mask = NULL, lonLim = NULL, latLim = NULL, lat = 46, 
                   ind <- which(!is.na(Tm2))
             }
             b <- array(dim = dim(Tm2))
-            if (length(ind) != 0) {
+            if (length(ind) > 0) {
                   for (i in 1:length(ind)) {
                         z <- tryCatch({suppressWarnings(fwi1D(months,
                                              Tm = Tm2[,ind[i]],
@@ -117,13 +117,14 @@ fwi <- function(multigrid, mask = NULL, lonLim = NULL, latLim = NULL, lat = 46, 
             c <- mat2Dto3Darray(mat2D = b, x = cords$x, y = cords$y)
             return(c)
       })
-      fwidat <- do.call("abind", list(a, along = 0))
-      message("[", Sys.time(), "] Done.")
-      dimNames <- attr(fwigrid$Data, "dimensions")
-      fwigrid$Data <- unname(fwidat)
+      dimNames <- downscaleR:::getDim(fwigrid)
+      fwigrid$Data <- unname(do.call("abind", list(a, along = 0)))
+      a <- NULL
       attr(fwigrid$Data, "dimensions") <- dimNames
       fwigrid$Variable <- list()
       fwigrid$Variable$varName <- "fwi" 
+      fwigrid$Variable$level <- NA 
+      message("[", Sys.time(), "] Done.")
       return(fwigrid)
 }
 
