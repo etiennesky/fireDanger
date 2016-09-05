@@ -88,7 +88,9 @@ fwiGrid <- function(multigrid,
       xcoords <- multigrid$xyCoords$x
       co <- expand.grid(ycoords, xcoords)[2:1]
       dimNames.mg <- downscaleR:::getDim(multigrid)
-      n.mem <- downscaleR:::getShape(multigrid, "member")
+      n.mem <- tryCatch(downscaleR:::getShape(multigrid, "member"),
+                        error = function(er) 1L)
+      ## if (n.mem == 1L) multigrid <- downscaleR:::redim(multigrid)
       yrsindex <- downscaleR::getYearsAsINDEX(multigrid)
       nyears <- length(unique(yrsindex))
       if (!is.null(mask)) {
@@ -102,6 +104,8 @@ fwiGrid <- function(multigrid,
             message("Invalid 'nlat.chunks' argument value. It was ignored")
       }
       idx.chunk.list <- parallel::splitIndices(length(ycoords), nlat.chunks)
+      rm.ind <- which(vapply(idx.chunk.list, FUN = "length", FUN.VALUE = numeric(1)) == 0)
+      if (length(rm.ind) > 0) idx.chunk.list <- idx.chunk.list[-rm.ind]
       message("[", Sys.time(), "] Calculating ", what)
       aux.list <- lapply(1:nlat.chunks, function(k) {
             ## Lat chunking
@@ -192,7 +196,6 @@ fwiGrid <- function(multigrid,
                                           return(z)
                                     })
                                     b[,ind[i]] <- do.call("c", annual.list)
-                                    
                               } else {
                                     arg.list2 <- list("months" = months,
                                                       "Tm" = Tm2[,ind[i]],
@@ -206,7 +209,6 @@ fwiGrid <- function(multigrid,
                                                   error = function(err) {rep(NA, length(months))})
                                     ## if (length(z) < nrow(b)) z <- rep(NA, nrow(b))
                                     b[,ind[i]] <- z
-                                    
                               }
                         }
                         out <- mat2Dto3Darray(mat2D = b,
@@ -220,7 +222,7 @@ fwiGrid <- function(multigrid,
       })
       message("[", Sys.time(), "] Done.")
       ## Final grid and metadata
-      fwigrid <- subsetGrid(multigrid, var = varnames[1])
+      fwigrid <- downscaleR:::redim(subsetGrid(multigrid, var = varnames[1]), drop = FALSE)
       multigrid <- NULL     
       dimNames <- downscaleR:::getDim(fwigrid)
       fwigrid$Data <- unname(do.call("abind", c(aux.list, along = grep("lat", dimNames))))
