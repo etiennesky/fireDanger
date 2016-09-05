@@ -46,6 +46,8 @@
 #' number of chunks that can be used, as long as it does not exceed the number of actual latitudes 
 #' in the model grid.
 #' 
+#' @template templateParallel 
+#' 
 #' @references
 #' \itemize{
 #' \item Lawson, B.D. & Armitage, O.B., 2008. Weather guide for the Canadian Forest Fire Danger Rating System. Northern Forestry Centre, Edmonton (Canada).
@@ -104,8 +106,9 @@ fwiGrid <- function(multigrid,
             message("Invalid 'nlat.chunks' argument value. It was ignored")
       }
       idx.chunk.list <- parallel::splitIndices(length(ycoords), nlat.chunks)
-      rm.ind <- which(vapply(idx.chunk.list, FUN = "length", FUN.VALUE = numeric(1)) == 0)
-      if (length(rm.ind) > 0) idx.chunk.list <- idx.chunk.list[-rm.ind]
+      if (any(vapply(idx.chunk.list, FUN = "length", FUN.VALUE = numeric(1)) < 2L)) {
+            stop("Too many latitudinal chunks. Reduce the value of 'nlat.chunks' to a maximum of ", length(ycoords) %/% 2)
+      }
       message("[", Sys.time(), "] Calculating ", what)
       aux.list <- lapply(1:nlat.chunks, function(k) {
             ## Lat chunking
@@ -214,8 +217,8 @@ fwiGrid <- function(multigrid,
                         out <- mat2Dto3Darray(mat2D = b,
                                        x = Tm1$xyCoords$x,
                                        y = Tm1$xyCoords$y)
+                        return(out)
                   }
-                  return(out)
             })
             Tm1 <- r1 <- H1 <- W1 <- NULL
             unname(do.call("abind", list(a, along = 0)))
