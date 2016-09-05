@@ -1,135 +1,247 @@
-#' @title Fire Weather Index (FWI) from multigrid
+#' @title Fire Weather Index applied to multigrids
 #' 
-#' @description A wrapper of function \code{\link{fwi1D}} to handle multigrids
+#' @description Implementation of the Canadian Fire Weather Index System for multigrids
 #' 
-#' @param multigrid A multigrid of the variables needed to compute the FWI. See the Warning section
-#' @param mask Optional. Grid of the land mask to be applied to the data.
-#' @param return.all Logical. Should all components of the FWI system be returned?. 
-#' Default to FALSE, indicating that only FWI is returned.
-#' @param init.pars A numeric vector of length 3 with the initialization values for the
-#'  FFMC, DMC and DC components, in this order. Default values as proposed by van Wagner (1987).
-#' @param parallel Logical. Should parallel execution be used?
-#' @param max.ncores Integer. Upper bound for user-defined number of cores.
-#' @param ncores Integer number of cores used in parallel computation. Self-selected number of
-#'  cores is used when \code{ncpus = NULL} (the default), or when \code{maxcores} exceeds the default \code{ncores} value.
+#' @param multigrid containing Tm (temperature records in deg. Celsius); H (relative humidity records in \%);
+#' r (last 24-h accumulated precipitation in mm); W (wind velocity records in Km/h). See details.
+#' @param mask Optional. Binary grid (0 and 1, 0 for sea areas) with \code{dimensions} attribute \code{c("lat", "lon")}.
+#' @param what Character string. What component of the FWI system is computed?. Default to \code{"FWI"}.
+#'  See \code{\link{fwi1D}} for details and possible values.
+#' @param nlat.chunks For an efficient memory usage, the computation of FWI can be split into 
+#' latitudinal bands (chunks) sepparately. The number of chunks is controlled here. 
+#' Default to \code{NULL} (i.e., no chunking applied).
+#' @param restart.annual Logical. Should the calculation be restarted at the beginning of every year?
+#' If the grid encompasses just one season (e.g. JJA...), this is the recommended option. Default to \code{TRUE}.
+#' @param ... Further arguments passed to \code{\link{fwi1D}}.
+#' @template templateParallelParams
 #' 
-#' @return A grid, containing the requested components of the FWI system (either all or just FWI). See details.
+#' @return A grid corresponding to the variable defined in argument \code{what}.  
 #' 
 #' @details 
 #' 
-#' In order to efficiently handle large datasets, the function internally splits the spatial domain in convenient latitudinal chunks.  
+#' \strong{Variable names}
 #' 
-#' @section Daylength adjustment factors: 
-#' In this case, daylength adjustment factors are automatically set by the funciton according to the
-#'  reference values indicated in p.71 and Tables A3.1 and A3.2 (p69) in Lawson and Armitage (2008).
-#' 
-#' @section Warning:
-#' 
-#' The variables composing the input multigrid need to have standard names, as defined by the dictionary
+#' The variables composing the input multigrid are expected to have standard names, as defined by the dictionary
 #'  (their names are stored in the \code{multigrid$Variable$varName} component).
 #' These are: \code{"tas"} for temperature, \code{"tp"} for precipitation, \code{"wss"} for windspeed. In the case of relative humidity,
 #' either \code{"hurs"} or \code{"hursmin"} are accepted, the latter in case of FWI calculations according to the \dQuote{proxy} version
 #' described in Bedia \emph{et al} 2014.
 #' 
-#' Be aware of the required input units.
+#' \strong{Landmask definition}
+#' 
+#' The use of a landsmask is highly recommended when using RCM/GCM data becasue (i) there is no point in calculating
+#' FWI over sea areas and (ii) for computational efficiency, as sea gridboxes will be skipped before calculations.
+#' 
+#' The landmask must be a grid spatially consistent with the input multigrid. You can use 
+#' \code{\link[downscaleR]{interpGrid}} in combination with the \code{getGrid} method to ensure this condition is fulfilled.  . Its \code{data} component can be either a 2D or 3D array with the \code{dimensions} 
+#' attribute \code{c("lat","lon")} or \code{c("time","lat","lon")} respectively. In the latter case, the length of the time 
+#' dimension should be 1. Note that values of 0 correspond to sea areas (thus discarded for FWI calculation), being land areas any other 
+#' values different from 0 (tipically 1 or 100, corresponding to the land/sea area fraction).   
+#' 
+#' \strong{Latitudinal chunking}
+#' 
+#' Splitting the calculation in latitudinal chunks is highly advisable, and absolutely necessary when
+#' considering large spatial domains, otherwise running out of memory during the computation. The number
+#' of latitudinal chunks need to be estimated on a case-by-case basis, but in general there are no restrictions in the
+#' number of chunks that can be used, as long as it does not exceed the number of actual latitudes 
+#' in the model grid.
 #' 
 #' @references
-#' Lawson, B.D. & Armitage, O.B., 2008. Weather guide for the Canadian Forest Fire Danger Rating System. Northern Forestry Centre, Edmonton (Canada).
+#' \itemize{
+#' \item Lawson, B.D. & Armitage, O.B., 2008. Weather guide for the Canadian Forest Fire Danger Rating System. Northern Forestry Centre, Edmonton (Canada).
 #' 
-#' van Wagner, C.E., 1987. Development and structure of the Canadian Forest Fire Weather Index (Forestry Tech. Rep. No. 35). Canadian Forestry Service, Ottawa, Canada.
+#' \item van Wagner, C.E., 1987. Development and structure of the Canadian Forest Fire Weather Index (Forestry Tech. Rep. No. 35). Canadian Forestry Service, Ottawa, Canada.
 #' 
-#' van Wagner, C.E., Pickett, T.L., 1985. Equations and FORTRAN program for the Canadian forest fire weather index system (Forestry Tech. Rep. No. 33). Canadian Forestry Service, Ottawa, Canada.
+#' \item van Wagner, C.E., Pickett, T.L., 1985. Equations and FORTRAN program for the Canadian forest fire weather index system (Forestry Tech. Rep. No. 33). Canadian Forestry Service, Ottawa, Canada.
+#' }
 #' 
-#' Bedia, J., Herrera, S., Camia, A., Moreno, J.M., Gutierrez, J.M., 2014. Forest Fire Danger Projections in the Mediterranean using ENSEMBLES Regional Climate Change Scenarios. Clim Chang 122, 185--199. doi:10.1007/s10584-013-1005-z
-#'
-#' @seealso \code{\link{fwi1D}} 
-#' @author J. Bedia \& M.Iturbide
+#' @author J. Bedia \& M. Iturbide
+#' 
 #' @export
+#' 
 #' @importFrom abind abind asub
-#' @importFrom downscaleR subsetGrid
-#' @importFrom downscaleR getYearsAsINDEX
+#' @importFrom parallel parLapply splitIndices
+#' @import downscaleR 
 
 fwiGrid <- function(multigrid,
                     mask = NULL,
-                    return.all = FALSE, 
-                    init.pars = c(85, 6, 15),
+                    what = "FWI",
+                    nlat.chunks = NULL,
+                    restart.annual = TRUE,
                     parallel = FALSE,
+                    ncores = NULL,
                     max.ncores = 16,
-                    ncores = NULL) {
-      x <-  c(-90, -80, -70, -60, -50, -40, -30, -20, -10, 1, 10, 20, 30, 40, 50, 60, 70, 80, 90)
-      latLim <- range(multigrid$xyCoords$y)
-      lonLim <- range(multigrid$xyCoords$x)
-      latind <- findInterval(latLim, x)[1]:findInterval(latLim, x)[2]
-      if (x[latind[length(latind)]] < latLim[2]) latind[3] <- latind[2] + 1
-      x <- x[latind]
-      lats <- seq(min(x) + 5, max(x) - 5, 10) 
-      if (x[length(x)] > latLim[2]) x[length(x)] <- latLim[2]
-      if (x[1] < latLim[1]) x[1] <- latLim[1]
-      dataset <- attr(multigrid, "dataset")
-      years <- unique(getYearsAsINDEX(multigrid))
-      dimNames <- downscaleR:::getDim(multigrid)
-      latdim <- grep("lat", dimNames)
-      a <- list()
-      aux.list <- a
-      message("[", Sys.time(), "] Calculating FWI..")
-      for (i in 1:(length(x) - 1)) {
-            latLimchunk <- c(x[i], x[i + 1])
-            lat <- lats[i]
-            multigrid_chunk <- subsetGrid(multigrid, latLim = latLimchunk)
-            aux.list[[i]] <- multigrid_chunk$xyCoords$y
-            ## This part avoids repeating latitudes in the extremes as a result of subsetGrid
-            if (i > 1) {
-                  lat.rep <- intersect(aux.list[[i]], aux.list[[i - 1]])
-                  if (length(lat.rep) > 0) {
-                        lat.rep.ind <- match(lat.rep, multigrid_chunk$xyCoords$y)
-                        multigrid_chunk$Data <- asub(multigrid_chunk$Data, idx = -lat.rep.ind, dims = latdim)
-                        attr(multigrid_chunk$Data, "dimensions") <- dimNames
-                        multigrid_chunk$xyCoords$y <- multigrid_chunk$xyCoords$y[-lat.rep.ind]
-                  }
-            }
-            if (is.null(mask) & dataset == "WFDEI") {
-                  msk <- subsetGrid(multigrid_chunk, var = "tas")
-                  msk$Data <- msk$Data[1,,]
-                  msk$Data[which(!is.na(msk$Data))] <- 100
-                  msk$Data[which(is.na(msk$Data))] <- 0
-                  attr(msk$Data, "dimensions") <- c("lat", "lon")
-            } else if (!is.null(mask)) {
-                  dimNames.mask <- downscaleR:::getDim(mask)
-                  msk <- subsetGrid(mask, latLim = latLimchunk, lonLim = lonLim, outside = TRUE)
-                  ## This part avoids repeating latitudes in the extremes as a result of subsetGrid
-                  if (i > 1 && length(lat.rep) > 0) {
-                        msk$Data <- asub(msk$Data, idx = -lat.rep.ind, dims = grep("lat", dimNames.mask))
-                        attr(msk$Data, "dimensions") <- dimNames.mask
-                        msk$xyCoords$y <- msk$xyCoords$y[-lat.rep.ind]
-                  }
-            } else {
-                  message("The use of a land mask is recommended")
-                  msk <- NULL
-            }
-            o <- lapply(1:length(years), function(x) {
-                  multigrid.y <- subsetGrid(multigrid_chunk, years = years[x])
-                  suppressMessages(
-                        fwi(multigrid = multigrid.y,
-                            mask = msk,
-                            lat = lat,
-                            return.all = return.all, 
-                            parallel = parallel, init.pars = init.pars, 
-                            max.ncores = max.ncores, ncores = ncores)$Data
-                  )
-            })
-            ind.time <- grep("^time", dimNames)
-            a[[i]] <-  unname(do.call("abind", list(o, along = ind.time)))  
+                    ...) {
+      what <- match.arg(what,
+                        choices = c("FFMC", "DMC", "DC", "ISI", "BUI", "FWI", "DSR"),
+                        several.ok = FALSE)
+      fwi1D.opt.args <- list(...)
+      
+      months <- as.integer(substr(multigrid$Dates[[1]]$start, start = 6, stop = 7))
+      fwi1D.opt.args <- c(fwi1D.opt.args, list("what" = what))
+      if ("lat" %in% names(fwi1D.opt.args)) {
+            message("NOTE: argument 'lat' will be overriden by the actual latitude of gridboxes\n(See help of fwi1D for details).")
+            fwi1D.opt.args[-grep("lat", names(names(fwi1D.opt.args)))]
       }
-      a <- lapply(a, "drop")
+      varnames <- multigrid$Variable$varName
+      ycoords <- multigrid$xyCoords$y
+      xcoords <- multigrid$xyCoords$x
+      co <- expand.grid(ycoords, xcoords)[2:1]
+      dimNames.mg <- downscaleR:::getDim(multigrid)
+      n.mem <- downscaleR:::getShape(multigrid, "member")
+      yrsindex <- getYearsAsINDEX(multigrid)
+      nyears <- length(unique(yrsindex))
+      if (!is.null(mask)) {
+            dimNames.mask <- downscaleR:::getDim(mask)
+      }
+      if (is.null(nlat.chunks)) {
+            nlat.chunks <- 1L
+      }
+      if (nlat.chunks <= 0) {
+            nlat.chunks <- 1L
+            message("Invalid 'nlat.chunks' argument value. It was ignored")
+      }
+      idx.chunk.list <- parallel::splitIndices(length(ycoords), nlat.chunks)
+      message("[", Sys.time(), "] Calculating ", what)
+      aux.list <- lapply(1:nlat.chunks, function(k) {
+            ## Lat chunking
+            ind.lat <- idx.chunk.list[[k]]
+            dims <- grep("lat", dimNames.mg)
+            multigrid_chunk <- multigrid 
+            mask_chunk <- mask
+            if (nlat.chunks > 1) {
+                  aux <- asub(multigrid$Data, idx = ind.lat, dims = dims)
+                  attr(aux, "dimensions") <- dimNames.mg
+                  multigrid_chunk$Data <- aux
+                  multigrid_chunk$xyCoords$y <- multigrid$xyCoords$y[ind.lat]
+                  ## Mask chunking
+                  if (!is.null(mask)) {
+                        aux <- asub(mask$Data, idx = ind.lat, dims = grep("lat", dimNames.mask))
+                        attr(aux, "dimensions") <- dimNames.mask
+                        mask_chunk$Data <- aux
+                        mask_chunk$xyCoords$y <- mask_chunk$xyCoords$y[ind.lat]
+                  }
+                  aux <- NULL
+            }
+            ## Multigrid subsetting
+            Tm1 <- subsetGrid(multigrid_chunk, var = grep("tas", varnames, value = TRUE))
+            Tm1 <- downscaleR:::redim(Tm1, drop = FALSE)
+            H1  <- subsetGrid(multigrid_chunk, var = grep("hurs", varnames, value = TRUE))
+            H1 <- downscaleR:::redim(H1, drop = FALSE)
+            r1  <- subsetGrid(multigrid_chunk, var = "tp")
+            r1 <- downscaleR:::redim(r1, drop = FALSE)
+            W1  <- subsetGrid(multigrid_chunk, var = "wss")
+            W1 <- downscaleR:::redim(W1, drop = FALSE)
+            multigrid_chunk <- NULL
+            ## Parallel checks
+            parallel.pars <- downscaleR:::parallelCheck(parallel, max.ncores, ncores)
+            if (n.mem < 2 && isTRUE(parallel.pars$hasparallel)) {
+                  parallel.pars$hasparallel <- FALSE
+                  message("NOTE: parallel computing only applies to multimember grids. The option was ignored")
+            }
+            if (parallel.pars$hasparallel) {
+                  apply_fun <- function(...) {
+                        parallel::parLapply(cl = parallel.pars$cl, ...)
+                  }
+                  on.exit(parallel::stopCluster(parallel.pars$cl))
+            } else {
+                  apply_fun <- lapply      
+            }
+            ## Landmask 
+            if (!is.null(mask)) {
+                  if (!("^time" %in% dimNames.mask)) {
+                        aux <- unname(abind(mask_chunk$Data, along = 0L))
+                        attr(aux, "dimensions") <- c("time", dimNames.mask)
+                  } else {
+                        aux <- mask_chunk$Data
+                  }
+                  msk <- array3Dto2Dmat(aux)[1,]
+                  ind <- which(msk > 0)
+                  msk <- NULL
+            } else {
+                  aux <- suppressWarnings(subsetGrid(Tm1, members = 1))$Data
+                  aux <- array3Dto2Dmat(aux)
+                  ind <- which(apply(aux, MARGIN = 2, FUN = function(y) !all(is.na(y))))
+            }
+            aux <- NULL
+            ## FWI calculation
+            message("[", Sys.time(), "] Processing chunk ", k, " out of ", nlat.chunks, "...")
+            a <- apply_fun(1:n.mem, function(x) {
+                  Tm2 <- array3Dto2Dmat(subsetGrid(Tm1, members = x)$Data)
+                  H2 <- array3Dto2Dmat(subsetGrid(H1, members = x)$Data)
+                  r2 <- array3Dto2Dmat(subsetGrid(r1, members = x)$Data)
+                  W2 <- array3Dto2Dmat(subsetGrid(W1, members = x)$Data)
+                  b <- array(dim = dim(Tm2))
+                  if (length(ind) > 0) {
+                        for (i in 1:length(ind)) {
+                              if (isTRUE(restart.annual)) {
+                                    ## Iterate over years
+                                    annual.list <- lapply(1:nyears, function(j) {
+                                          idx <- which(yrsindex == unique(yrsindex)[j])
+                                          arg.list2 <- list("months" = months[idx],
+                                                            "Tm" = Tm2[idx,ind[i]],
+                                                            "H" = H2[idx,ind[i]],
+                                                            "r" = r2[idx,ind[i]],
+                                                            "W" = W2[idx,ind[i]],
+                                                            "lat" = co[ind[i],2])
+                                          arg.list <- c(fwi1D.opt.args, arg.list2)
+                                          z <- tryCatch({suppressWarnings(drop(do.call("fwi1D",
+                                                                                       args = arg.list)))},
+                                                        error = function(err) {rep(NA, length(idx))})
+                                          ## if (length(z) < length(idx)) z <- rep(NA, length(idx))
+                                          return(z)
+                                    })
+                                    b[,ind[i]] <- do.call("c", annual.list)
+                                    
+                              } else {
+                                    arg.list2 <- list("months" = months,
+                                                      "Tm" = Tm2[,ind[i]],
+                                                      "H" = H2[,ind[i]],
+                                                      "r" = r2[,ind[i]],
+                                                      "W" = W2[,ind[i]],
+                                                      "lat" = co[ind[i],2])
+                                    arg.list <- c(fwi1D.opt.args, arg.list2)
+                                    z <- tryCatch({suppressWarnings(drop(do.call("fwi1D",
+                                                                                 args = arg.list)))},
+                                                  error = function(err) {rep(NA, length(months))})
+                                    ## if (length(z) < nrow(b)) z <- rep(NA, nrow(b))
+                                    b[,ind[i]] <- z
+                                    
+                              }
+                        }
+                        out <- mat2Dto3Darray(mat2D = b,
+                                       x = Tm1$xyCoords$x,
+                                       y = Tm1$xyCoords$y)
+                  }
+                  return(out)
+            })
+            Tm1 <- r1 <- H1 <- W1 <- NULL
+            unname(do.call("abind", list(a, along = 0)))
+      })
       message("[", Sys.time(), "] Done.")
-      out <- unname(do.call("abind", list(a, along = latdim - 1)))
-      temp <- subsetGrid(multigrid, var = "tas")
-      temp$Data <- out
-      attr(temp$Data, "dimensions") <- dimNames[-1]
-      temp$Variable$varName <- "fwi"
-      attr(temp$Variable, "use_dictionary") <- FALSE
-      attr(temp$Variable, "description") <- "Fire Weather Index"
-      attr(temp$Variable, "units") <-  "adimensional"
-      attr(temp$Variable, "longname") <- "Fire Weather Index"
-      return(temp)
+      ## Final grid and metadata
+      fwigrid <- subsetGrid(multigrid, var = varnames[1])
+      multigrid <- NULL     
+      dimNames <- downscaleR:::getDim(fwigrid)
+      fwigrid$Data <- unname(do.call("abind", c(aux.list, along = grep("lat", dimNames))))
+      aux.list <- NULL
+      attr(fwigrid$Data, "dimensions") <- dimNames
+      fwigrid$Variable <- list()
+      fwigrid$Variable$varName <- what 
+      fwigrid$Variable$level <- NA
+      desc <- switch(what,
+                     "FFMC" = "Fine Fuel Moisture Code",
+                     "DMC" = "Duff Moisture Code",
+                     "DC" = "Drought Code",
+                     "ISI" = "Initial Spread Index",
+                     "BUI" = "Builtup Index",
+                     "FWI" = "Fire Weather Index",
+                     "DSR" = "Daily Severity Rating")
+      attr(fwigrid$Variable, "use_dictionary") <- FALSE
+      attr(fwigrid$Variable, "description") <- desc
+      attr(fwigrid$Variable, "units") <-  "adimensional"
+      attr(fwigrid$Variable, "longname") <- paste(desc, "component of the Canadian Fire Weather Index System")
+      attr(fwigrid, "calculation") <- "Calculated with the fireDanger package (https://github.com/SantanderMetGroup/fireDanger)"
+      return(fwigrid)
 }
+      
