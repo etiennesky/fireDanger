@@ -9,8 +9,9 @@
 #' @param W Vector of wind velocity records (Km/h)
 #' @param lat Optional. Latitude of the records (in decimal degrees). Default to 46,
 #' applying the default parameters of the original FWI System, developed in Canada. See Daylength Adjustment details.
-#' @param return.all Logical. Should all components of the FWI system be returned?. 
-#' Default to FALSE, indicating that only FWI is returned.
+#' @param what Character vector, indicating the components of the FWI system to be returned.
+#' Accepted values include any possible subset of the set \{\code{"FFMC"},\code{"DMC"},\code{"DC"}
+#' ,\code{"BUI"},\code{"ISI"},\code{"FWI"},\code{"DSR"}\}. Default to \code{"FWI"}.
 #' @param init.pars A numeric vector of length 3 with the initialization values for the
 #'  FFMC, DMC and DC components, in this order. Default values as proposed by van Wagner (1987).
 #' @param spin.up Non-negative integer indicating the number of days considered for FWI spin-up.
@@ -18,8 +19,8 @@
 #'  
 #' @importFrom stats complete.cases
 #'  
-#' @return A vector of the same length as the input vectors (minus possible missing observations),
-#' containing the requested components of the FWI system (either all or just FWI). See details.
+#' @return A matrix with the time (days) arranged in rows and the components selected in \code{what}
+#' in columns. The attribute \code{colnames} gives the component ordering.
 #' 
 #' @section Daylength adjustment factors: 
 #' By default, the function applies the original FWI daylength adjustment factors for DC and DMC (van Wagner 1987),
@@ -28,18 +29,19 @@
 #' Lawson and Armitage (2008).
 #' 
 #' @section FWI spin-up:
-#' FWI is initializaed with some values for FFMC, DMC and DC components. This means that the first values of the series are not reliable,
+#' FWI is initialized with some values for FFMC, DMC and DC components. This means that the first values of the series are not reliable,
 #'  until the index is iterated over several time steps and stabilizes (typically a few days suffice).
 #'  Thus, the first index values can be optionally set to \code{NA}. The number of days at the beginning of the series to be set to \code{NA}
 #'   is controlled via the \code{spin.up} argument.
 #' 
 #' @references
-#' Lawson, B.D. & Armitage, O.B., 2008. Weather guide for the Canadian Forest Fire Danger Rating System. Northern Forestry Centre, Edmonton (Canada).
+#' \itemize{
+#' \item Lawson, B.D. & Armitage, O.B., 2008. Weather guide for the Canadian Forest Fire Danger Rating System. Northern Forestry Centre, Edmonton (Canada).
 #' 
-#' van Wagner, C.E., 1987. Development and structure of the Canadian Forest Fire Weather Index (Forestry Tech. Rep. No. 35). Canadian Forestry Service, Ottawa, Canada.
+#' \item van Wagner, C.E., 1987. Development and structure of the Canadian Forest Fire Weather Index (Forestry Tech. Rep. No. 35). Canadian Forestry Service, Ottawa, Canada.
 #' 
-#' van Wagner, C.E., Pickett, T.L., 1985. Equations and FORTRAN program for the Canadian forest fire weather index system (Forestry Tech. Rep. No. 33). Canadian Forestry Service, Ottawa, Canada.
-#' 
+#' \item van Wagner, C.E., Pickett, T.L., 1985. Equations and FORTRAN program for the Canadian forest fire weather index system (Forestry Tech. Rep. No. 33). Canadian Forestry Service, Ottawa, Canada.
+#' }
 #' @author J. Bedia, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
 #' 
 #' @export
@@ -47,23 +49,22 @@
 
 fwi1D <- function(months, Tm, H, r, W,
                   lat = 46,
-                  return.all = FALSE,
-                  init.pars = c(85, 6, 15),
+                  what = "FWI",
+                  init.pars = c(85, 6, 15) ,
                   spin.up = 0) {
       if (any(c(length(Tm), length(H), length(r), length(W)) != length(months))) {
             stop("Input vector lengths differ")
       }
-      out <- if (return.all) {
-            aux <- matrix(nrow = length(months), ncol = 7, dimnames = list(NULL, c("FFMC", "DMC", "DC", "ISI", "BUI", "FWI", "DSR")))      
-            as.data.frame(aux)
-      } else {
-            rep(NA, length(months))
-      }
+      what <- match.arg(arg = what,
+                        choices = c("FFMC", "DMC", "DC", "ISI", "BUI", "FWI", "DSR"),
+                        several.ok = TRUE)
+      out <- matrix(nrow = length(months), ncol = length(what), dimnames = list(NULL, what))      
       rm.ind <- which(!complete.cases(Tm, H, r, W))
       non.na.ind <- setdiff(1:length(months), rm.ind)
+      mes <- months ## (I feel lazy for renaming...)
       if (length(rm.ind) > 0) {
             warning("Missing values were removed from the time series before computation")
-            mes <- months[-rm.ind]
+            mes <- mes[-rm.ind]
             Tm <- Tm[-rm.ind]
             H <- H[-rm.ind]
             r <- r[-rm.ind]
@@ -208,15 +209,20 @@ fwi1D <- function(months, Tm, H, r, W,
                   FWI[i] <- B
             }
       }
-      if (!return.all) {
-            out[non.na.ind] <- FWI
-            if (spin.up > 0) out[1:spin.up] <- NA
+      FFMC <- f0[-1]
+      DMC <- p0[-1]
+      DC <- d0[-1]
+      if ("DSR" %in% what) DSR <- 0.0272 * FWI ^ 1.77
+      aux <- vapply(X = colnames(out),
+                    FUN = function(x) cbind(get(x)),
+                    FUN.VALUE = numeric(length(mes)))
+      if (length(non.na.ind) > 0) {
+            out[non.na.ind,] <- aux
       } else {
-            DSR <- 0.0272 * FWI ^ 1.77
-            fds <- cbind.data.frame(FFMC = f0[-1], DMC = p0[-1], DC = d0[-1], ISI = ISI, BUI = BUI, FWI = FWI, DSR = DSR)
-            out[non.na.ind, ] <- fds
-            if (spin.up > 0) out[1:spin.up, ] <- NA
+            out <- aux
       }
+      aux <- NULL
+      if (spin.up > 0) out[1:spin.up,] <- NA
       return(out)
 }
 # End
