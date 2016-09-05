@@ -89,7 +89,7 @@ fwiGrid <- function(multigrid,
       co <- expand.grid(ycoords, xcoords)[2:1]
       dimNames.mg <- downscaleR:::getDim(multigrid)
       n.mem <- downscaleR:::getShape(multigrid, "member")
-      yrsindex <- getYearsAsINDEX(multigrid)
+      yrsindex <- downscaleR::getYearsAsINDEX(multigrid)
       nyears <- length(unique(yrsindex))
       if (!is.null(mask)) {
             dimNames.mask <- downscaleR:::getDim(mask)

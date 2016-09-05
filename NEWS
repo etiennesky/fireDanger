@@ -1,6 +1,7 @@
 New in fireDanger
 =================
 
+* Calculation of all FWI System components from grids
 * FWI spin.up argument introduced to consider user-selected spin-up periods
 * New version to preserve missing values of the input series (i.e. temporal i/o consistency)
 * Implicit removal of first month in `fwiGrid` removed (`subsetGrid` can be optionally applied after FWI calculation)

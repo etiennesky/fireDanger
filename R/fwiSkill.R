@@ -13,9 +13,10 @@
 #' 
 #' @return A grid of the skill scores.
 #'  
-#' @author M.Iturbide
+#' @author M. Iturbide
 #' @export
 #' @importFrom easyVerification veriApply
+#' @importFrom downscaleR easyVeri2grid
 
 
 fwiSkill <- function(obs, 
@@ -37,7 +38,7 @@ fwiSkill <- function(obs,
                                    tdim = tdim,
                                    parallel = parallel,
                                    na.rm = na.rm)
-            score.grid <- easyVeri2grid(easyVeri.mat = score[[1]],
+            score.grid <- downscaleR::easyVeri2grid(easyVeri.mat = score[[1]],
                                            obs.grid = obs,
                                            verifun = verifun)  
             if(verifun == "EnsRocss"){
@@ -67,7 +68,7 @@ plotFwiSkill <- function(grid){
       lc <- dim(grid$Data)[catdim]
       attr(grid$Data, "dimensions") <- c("member", "lat", "lon")
       grid.r <- downscaleR:::redim(grid)
-      plotClimatology(climatology(grid.r), backdrop.theme = "coastline", par.strip.text = list(labels =paste("cat", 1:lc)))
+      plotClimatology(climatology(grid.r), backdrop.theme = "coastline", par.strip.text = list(labels = paste("cat", 1:lc)))
 }
 
 

@@ -30,6 +30,6 @@ A grid of the skill scores.
 Skill calculation with function veriApply
 }
 \author{
-M.Iturbide
+M. Iturbide
 }
 
