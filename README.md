@@ -3,6 +3,11 @@ What is fireDanger?
 
 `fireDanger` is an R package for the Implementation of the Canadian Fire Weather Index System using as input seasonal forecast data and other climatic datasets.
 
+
+---
+`fireDanger` is part of the [**loadeR**](https://github.com/SantanderMetGroup/loadeR) **bundle**.
+---
+
 ###References
 Lawson, B.D. & Armitage, O.B., 2008. Weather guide for the Canadian Forest Fire Danger Rating System. Northern Forestry Centre, Edmonton (Canada).
 
@@ -13,6 +18,7 @@ van Wagner, C.E., Pickett, T.L., 1985. Equations and FORTRAN program for the Can
 
 Find out more about this package (including [installation information](https://github.com/SantanderMetGroup/fireDanger/wiki/Installation)) in the [fireDanger's WIKI](https://github.com/SantanderMetGroup/fireDanger/wiki).
 
+<!---
 # Other packages of the `fireDanger` bundle
 
  * [`loadeR`](https://github.com/SantanderMetGroup/loadeR/) an R package for climate data data access and manipulation powered by NetCDF-Java (trough the `rJava` package). 
@@ -25,4 +31,4 @@ Find out more about this package (including [installation information](https://g
  
  * [`visualizeR`](https://github.com/SantanderMetGroup/visualizeR) is an R package implementing a set of advanced **visualization tools for forecast verification**.
 
----
+--->
