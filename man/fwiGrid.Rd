@@ -54,7 +54,7 @@ The use of a landsmask is highly recommended when using RCM/GCM data becasue (i)
 FWI over sea areas and (ii) for computational efficiency, as sea gridboxes will be skipped before calculations.
 
 The landmask must be a grid spatially consistent with the input multigrid. You can use 
-\code{\link[downscaleR]{interpGrid}} in combination with the \code{getGrid} method to ensure this condition is fulfilled.  . Its \code{data} component can be either a 2D or 3D array with the \code{dimensions} 
+\code{\link[transformeR]{interpGrid}} in combination with the \code{getGrid} method to ensure this condition is fulfilled.  . Its \code{data} component can be either a 2D or 3D array with the \code{dimensions} 
 attribute \code{c("lat","lon")} or \code{c("time","lat","lon")} respectively. In the latter case, the length of the time 
 dimension should be 1. Note that values of 0 correspond to sea areas (thus discarded for FWI calculation), being land areas any other 
 values different from 0 (tipically 1 or 100, corresponding to the land/sea area fraction).   

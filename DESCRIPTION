@@ -3,16 +3,18 @@ Depends:
     R(>= 3.1.0)
 Imports:
     abind,
-    downscaleR,
+    transformeR,
     parallel,
-    loadeR.ECOMS,
-    easyVerification
 Suggests:
-    visualizeR
+    visualizeR,
+    loadeR,
+    loadeR.ECOMS,
+    downscaleR,
+    easyVerification
 Type: Package
 Title: Fire weather index calculation
-Version: 0.1-0
-Date: 2016-09-05
+Version: 1.0-0
+Date: 2016-10-04
 Authors@R: as.person(c(
     "Santander Meteorology Group <http://meteo.unican.es> [aut]",
     "Joaquin Bedia <bediaj@unican.es> [ctb, cre]",

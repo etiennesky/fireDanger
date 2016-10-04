@@ -33,7 +33,7 @@
 #' FWI over sea areas and (ii) for computational efficiency, as sea gridboxes will be skipped before calculations.
 #' 
 #' The landmask must be a grid spatially consistent with the input multigrid. You can use 
-#' \code{\link[downscaleR]{interpGrid}} in combination with the \code{getGrid} method to ensure this condition is fulfilled.  . Its \code{data} component can be either a 2D or 3D array with the \code{dimensions} 
+#' \code{\link[transformeR]{interpGrid}} in combination with the \code{getGrid} method to ensure this condition is fulfilled.  . Its \code{data} component can be either a 2D or 3D array with the \code{dimensions} 
 #' attribute \code{c("lat","lon")} or \code{c("time","lat","lon")} respectively. In the latter case, the length of the time 
 #' dimension should be 1. Note that values of 0 correspond to sea areas (thus discarded for FWI calculation), being land areas any other 
 #' values different from 0 (tipically 1 or 100, corresponding to the land/sea area fraction).   
@@ -63,7 +63,7 @@
 #' 
 #' @importFrom abind abind asub
 #' @importFrom parallel parLapply splitIndices
-#' @import downscaleR 
+#' @importFrom transformeR redim getDim getShape parallelCheck getYearsAsINDEX subsetGrid array3Dto2Dmat mat2Dto3Darray
 
 fwiGrid <- function(multigrid,
                     mask = NULL,
@@ -89,14 +89,14 @@ fwiGrid <- function(multigrid,
       ycoords <- multigrid$xyCoords$y
       xcoords <- multigrid$xyCoords$x
       co <- expand.grid(ycoords, xcoords)[2:1]
-      dimNames.mg <- downscaleR:::getDim(multigrid)
-      n.mem <- tryCatch(downscaleR:::getShape(multigrid, "member"),
+      dimNames.mg <- getDim(multigrid)
+      n.mem <- tryCatch(getShape(multigrid, "member"),
                         error = function(er) 1L)
-      ## if (n.mem == 1L) multigrid <- downscaleR:::redim(multigrid)
-      yrsindex <- downscaleR::getYearsAsINDEX(multigrid)
+      ## if (n.mem == 1L) multigrid <- redim(multigrid)
+      yrsindex <- getYearsAsINDEX(multigrid)
       nyears <- length(unique(yrsindex))
       if (!is.null(mask)) {
-            dimNames.mask <- downscaleR:::getDim(mask)
+            dimNames.mask <- getDim(mask)
       }
       if (is.null(nlat.chunks)) {
             nlat.chunks <- 1L
@@ -132,16 +132,16 @@ fwiGrid <- function(multigrid,
             }
             ## Multigrid subsetting
             Tm1 <- subsetGrid(multigrid_chunk, var = grep("tas", varnames, value = TRUE))
-            Tm1 <- downscaleR:::redim(Tm1, drop = FALSE)
+            Tm1 <- redim(Tm1, drop = FALSE)
             H1  <- subsetGrid(multigrid_chunk, var = grep("hurs", varnames, value = TRUE))
-            H1 <- downscaleR:::redim(H1, drop = FALSE)
+            H1 <- redim(H1, drop = FALSE)
             r1  <- subsetGrid(multigrid_chunk, var = "tp")
-            r1 <- downscaleR:::redim(r1, drop = FALSE)
+            r1 <- redim(r1, drop = FALSE)
             W1  <- subsetGrid(multigrid_chunk, var = "wss")
-            W1 <- downscaleR:::redim(W1, drop = FALSE)
+            W1 <- redim(W1, drop = FALSE)
             multigrid_chunk <- NULL
             ## Parallel checks
-            parallel.pars <- downscaleR:::parallelCheck(parallel, max.ncores, ncores)
+            parallel.pars <- parallelCheck(parallel, max.ncores, ncores)
             if (n.mem < 2 && isTRUE(parallel.pars$hasparallel)) {
                   parallel.pars$hasparallel <- FALSE
                   message("NOTE: parallel computing only applies to multimember grids. The option was ignored")
@@ -225,9 +225,9 @@ fwiGrid <- function(multigrid,
       })
       message("[", Sys.time(), "] Done.")
       ## Final grid and metadata
-      fwigrid <- downscaleR:::redim(subsetGrid(multigrid, var = varnames[1]), drop = FALSE)
+      fwigrid <- redim(subsetGrid(multigrid, var = varnames[1]), drop = FALSE)
       multigrid <- NULL     
-      dimNames <- downscaleR:::getDim(fwigrid)
+      dimNames <- getDim(fwigrid)
       fwigrid$Data <- unname(do.call("abind", c(aux.list, along = grep("lat", dimNames))))
       aux.list <- NULL
       attr(fwigrid$Data, "dimensions") <- dimNames
