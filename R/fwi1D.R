@@ -8,15 +8,19 @@
 #' @param r Vector of last 24-h accumulated precipitation (mm)
 #' @param W Vector of wind velocity records (Km/h)
 #' @param lat Optional. Latitude of the records (in decimal degrees). Default to 46,
-#' applying the default parameters of the original FWI System, developed in Canada. See details.
-#' @param return.all Logical. Should all components of the FWI system be returned?. 
-#' Default to FALSE, indicating that only FWI is returned.
+#' applying the default parameters of the original FWI System, developed in Canada. See Daylength Adjustment details.
+#' @param what Character vector, indicating the components of the FWI system to be returned.
+#' Accepted values include any possible subset of the set \{\code{"FFMC"},\code{"DMC"},\code{"DC"}
+#' ,\code{"BUI"},\code{"ISI"},\code{"FWI"},\code{"DSR"}\}. Default to \code{"FWI"}.
 #' @param init.pars A numeric vector of length 3 with the initialization values for the
 #'  FFMC, DMC and DC components, in this order. Default values as proposed by van Wagner (1987).
-#' 
-#' 
-#' @return A vector of the same length as the input vectors (minus possible missing observations),
-#' containing the requested components of the FWI system (either all or just FWI). See details.
+#' @param spin.up Non-negative integer indicating the number of days considered for FWI spin-up.
+#'  Default to 0 (i.e. no spin-up is considered). See the dedicated Section below for further details.
+#'  
+#' @importFrom stats complete.cases
+#'  
+#' @return A matrix with the time (days) arranged in rows and the components selected in \code{what}
+#' in columns. The attribute \code{colnames} gives the component ordering.
 #' 
 #' @section Daylength adjustment factors: 
 #' By default, the function applies the original FWI daylength adjustment factors for DC and DMC (van Wagner 1987),
@@ -24,21 +28,40 @@
 #' The reference values used for each latitudinal range are those indicated in p.71 and Tables A3.1 and A3.2 (p69) in
 #' Lawson and Armitage (2008).
 #' 
+#' @section FWI spin-up:
+#' FWI is initialized with some values for FFMC, DMC and DC components. This means that the first values of the series are not reliable,
+#'  until the index is iterated over several time steps and stabilizes (typically a few days suffice).
+#'  Thus, the first index values can be optionally set to \code{NA}. The number of days at the beginning of the series to be set to \code{NA}
+#'   is controlled via the \code{spin.up} argument.
+#' 
 #' @references
-#' Lawson, B.D. & Armitage, O.B., 2008. Weather guide for the Canadian Forest Fire Danger Rating System. Northern Forestry Centre, Edmonton (Canada).
+#' \itemize{
+#' \item Lawson, B.D. & Armitage, O.B., 2008. Weather guide for the Canadian Forest Fire Danger Rating System. Northern Forestry Centre, Edmonton (Canada).
 #' 
-#' van Wagner, C.E., 1987. Development and structure of the Canadian Forest Fire Weather Index (Forestry Tech. Rep. No. 35). Canadian Forestry Service, Ottawa, Canada.
+#' \item van Wagner, C.E., 1987. Development and structure of the Canadian Forest Fire Weather Index (Forestry Tech. Rep. No. 35). Canadian Forestry Service, Ottawa, Canada.
 #' 
-#' van Wagner, C.E., Pickett, T.L., 1985. Equations and FORTRAN program for the Canadian forest fire weather index system (Forestry Tech. Rep. No. 33). Canadian Forestry Service, Ottawa, Canada.
-#' 
+#' \item van Wagner, C.E., Pickett, T.L., 1985. Equations and FORTRAN program for the Canadian forest fire weather index system (Forestry Tech. Rep. No. 33). Canadian Forestry Service, Ottawa, Canada.
+#' }
 #' @author J. Bedia, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
 #' 
+#' @export
+#' 
 
-
-fwi1D <- function (months, Tm, H, r, W, lat = 46, return.all = FALSE, init.pars = c(85, 6, 15)) {
-      mes <- months
-      ret <- return.all
+fwi1D <- function(months, Tm, H, r, W,
+                  lat = 46,
+                  what = "FWI",
+                  init.pars = c(85, 6, 15) ,
+                  spin.up = 0) {
+      if (any(c(length(Tm), length(H), length(r), length(W)) != length(months))) {
+            stop("Input vector lengths differ")
+      }
+      what <- match.arg(arg = what,
+                        choices = c("FFMC", "DMC", "DC", "ISI", "BUI", "FWI", "DSR"),
+                        several.ok = TRUE)
+      out <- matrix(nrow = length(months), ncol = length(what), dimnames = list(NULL, what))      
       rm.ind <- which(!complete.cases(Tm, H, r, W))
+      non.na.ind <- setdiff(1:length(months), rm.ind)
+      mes <- months ## (I feel lazy for renaming...)
       if (length(rm.ind) > 0) {
             warning("Missing values were removed from the time series before computation")
             mes <- mes[-rm.ind]
@@ -120,7 +143,7 @@ fwi1D <- function (months, Tm, H, r, W, lat = 46, return.all = FALSE, init.pars 
             if (m < 0) {
                   m <- 0
             }
-            f0[i+1] <- 59.5 * (250 - m) / (147.2 + m)
+            f0[i + 1] <- 59.5 * (250 - m) / (147.2 + m)
             if (Tm[i] < -1.1) {
                   Tm[i] <- -1.1
             }
@@ -140,9 +163,9 @@ fwi1D <- function (months, Tm, H, r, W, lat = 46, return.all = FALSE, init.pars 
                   if (pr < 0) {
                         pr <- 0
                   }
-                  p0[i+1] <- pr + 100 * K
+                  p0[i + 1] <- pr + 100 * K
             } else {
-                  p0[i+1] <- p0[i] + 100 * K
+                  p0[i + 1] <- p0[i] + 100 * K
             }
             if (Tm[i] < -2.8) {
                   Tm[i] <- -2.8
@@ -159,17 +182,17 @@ fwi1D <- function (months, Tm, H, r, W, lat = 46, return.all = FALSE, init.pars 
                   if (dr < 0) {
                         dr <- 0
                   }
-                  d0[i+1] <- dr + 0.5 * v
+                  d0[i + 1] <- dr + 0.5 * v
             } else {
-                  d0[i+1] <- d0[i] + 0.5 * v
+                  d0[i + 1] <- d0[i] + 0.5 * v
             }
             fW <- exp(0.05039 * W[i])
             fF <- 91.9 * exp(-0.1386 * m) * (1 + ((m ^ 5.31) / (4.93 * 1e+07)))
             ISI[i] <- 0.208 * fW * fF
-            if (p0[i+1] <= 0.4 * d0[i+1]) {
-                  BUI[i] <- (0.8 * p0[i+1] * d0[i+1]) / (p0[i+1] + 0.4 * d0[i+1])
-            } else if (p0[i+1] > 0.4 * d0[i+1]) {
-                  BUI[i] <- p0[i+1] - (1 - (0.8 * d0[i+1]) / (p0[i+1] + 0.4 * d0[i+1])) * (0.92 + (0.0114 * p0[i+1]) ^ 1.7)
+            if (p0[i + 1] <= 0.4 * d0[i + 1]) {
+                  BUI[i] <- (0.8 * p0[i + 1] * d0[i + 1]) / (p0[i + 1] + 0.4 * d0[i + 1])
+            } else if (p0[i + 1] > 0.4 * d0[i + 1]) {
+                  BUI[i] <- p0[i + 1] - (1 - (0.8 * d0[i + 1]) / (p0[i + 1] + 0.4 * d0[i + 1])) * (0.92 + (0.0114 * p0[i + 1]) ^ 1.7)
             }
             if (!is.finite(BUI[i]) | BUI[i] < 0) {
                   BUI[i] <- 0
@@ -186,12 +209,20 @@ fwi1D <- function (months, Tm, H, r, W, lat = 46, return.all = FALSE, init.pars 
                   FWI[i] <- B
             }
       }
-      if (!return.all) {
-            return(FWI)
+      FFMC <- f0[-1]
+      DMC <- p0[-1]
+      DC <- d0[-1]
+      if ("DSR" %in% what) DSR <- 0.0272 * FWI ^ 1.77
+      aux <- vapply(X = colnames(out),
+                    FUN = function(x) cbind(get(x)),
+                    FUN.VALUE = numeric(length(mes)))
+      if (length(non.na.ind) > 0) {
+            out[non.na.ind,] <- aux
       } else {
-            DSR <- 0.0272 * FWI ^ 1.77
-            fds <- cbind.data.frame(FFMC = f0[-1], DMC = p0[-1], DC = d0[-1], ISI = ISI, BUI = BUI, FWI = FWI, DSR = DSR)
-            return(fds)
+            out <- aux
       }
+      aux <- NULL
+      if (spin.up > 0) out[1:spin.up,] <- NA
+      return(out)
 }
 # End

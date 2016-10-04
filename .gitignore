@@ -7,5 +7,5 @@ commonR
 init.R
 downscaleR.Rproj
 .Rprofile
-*.Rbuildignore
+.Rbuildignore
 .~lock.fwimean_CFSv2_seasonal_operative_6_8.csv#
