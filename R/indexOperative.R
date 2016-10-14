@@ -247,7 +247,7 @@ wfwiOP <- function(dataset = "CFSv2_seasonal_operative",
       x <-  c(-90, -80, -70, -60, -50, -40, -30, -20, -10, 1, 10, 20, 30, 40, 50, 60, 70, 80, 90)
       
       if (is.null(latLim)) latLim <-c(-90, 90)
-      if (is.null(lonLim)) lonLim <- c(-180, 180)
+      if (is.null(lonLim) & !is.null(mask)) lonLim <- c(min(getCoordinates(mask)$x),max(getCoordinates(mask)$x))
       latind <- findInterval(latLim, x)[1] : findInterval(latLim, x)[2]
       if(x[latind[length(latind)]] < latLim[2]) latind[3] <- latind[2]+1
       x <- x[latind]
