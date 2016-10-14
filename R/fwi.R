@@ -45,7 +45,8 @@
 #' @author J. Bedia & M. Iturbide, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
 #' @export
 #' @importFrom abind abind
-#' @import downscaleR 
+#' @importFrom transformeR redim
+#' @importFrom transformeR getShape
 
 
 fwi <- function(multigrid, mask = NULL, lonLim = NULL, latLim = NULL, lat = 46, return.all = FALSE, init.pars = c(85, 6, 15),
@@ -70,22 +71,22 @@ fwi <- function(multigrid, mask = NULL, lonLim = NULL, latLim = NULL, lat = 46, 
       #       }
       cords <- getCoordinates(multigrid)
       if (!is.null(mask)) {
-            mask1 <- downscaleR:::redim(mask,
+            mask1 <- transformeR:::redim(mask,
                                         member = FALSE,
                                         runtime = FALSE,
                                         drop = FALSE)
       }
       varnames <- multigrid$Variable$varName
       Tm1 <- subsetGrid(multigrid, var = grep("tas", varnames, value = TRUE))
-      Tm1 <- downscaleR:::redim(Tm1, drop = FALSE)
+      Tm1 <- transformeR:::redim(Tm1, drop = FALSE)
       H1  <- subsetGrid(multigrid, var = grep("hurs", varnames, value = TRUE))
-      H1 <- downscaleR:::redim(H1, drop = FALSE)
+      H1 <- transformeR:::redim(H1, drop = FALSE)
       r1  <- subsetGrid(multigrid, var = "tp")
-      r1 <- downscaleR:::redim(r1, drop = FALSE)
+      r1 <- transformeR:::redim(r1, drop = FALSE)
       W1  <- subsetGrid(multigrid, var = "wss")
-      W1 <- downscaleR:::redim(W1, drop = FALSE)
+      W1 <- transformeR:::redim(W1, drop = FALSE)
       fwigrid <- W1
-      n.mem <- downscaleR:::getShape(W1, "member")
+      n.mem <- transformeR:::getShape(W1, "member")
       message("[", Sys.time(), "] Calculating FWI...")
       a <- apply_fun(1:n.mem, function(x) {
             Tm2 <- array3Dto2Dmat(subsetGrid(Tm1, members = x)$Data)

@@ -34,8 +34,8 @@
 #' @author J. Bedia \& M.Iturbide, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
 #' @export
 #' @importFrom abind abind
-#' @importFrom downscaleR subsetGrid
-#' @importFrom downscaleR getYearsAsINDEX
+#' @importFrom transformeR subsetGrid
+#' @importFrom transformeR getYearsAsINDEX
 
 
 
@@ -57,7 +57,7 @@ fwiGrid <- function(multigrid,
       if (x[1] < latLim[1]) x[1] <- latLim[1]
       dataset <- attr(multigrid, "dataset")
       years <- unique(getYearsAsINDEX(multigrid))
-      latdim <- which(downscaleR:::getDim(multigrid) == "lat")
+      latdim <- which(transformeR:::getDim(multigrid) == "lat")
       a <- list()
       message("[", Sys.time(), "] Calculating FWI..")
       for (i in 1:(length(x) - 1)) {
@@ -100,7 +100,7 @@ fwiGrid <- function(multigrid,
       message("[", Sys.time(), "] Done.")
       temp <- subsetGrid(multigrid, var = "tas")
       dimNames <- attr(temp$Data, "dimensions")
-      latdim.f <- which(downscaleR:::getDim(temp) == "lat")
+      latdim.f <- which(transformeR:::getDim(temp) == "lat")
       out <- unname(do.call("abind", list(a, along = latdim.f)))
       temp$Data <- out
       attr(temp$Data, "dimensions") <- dimNames

@@ -26,8 +26,8 @@ fwiSkill <- function(obs,
                      parallel = FALSE,
                      na.rm = TRUE){
             obs <- interpGrid(obs, getGrid(fcst))
-            ensdim <- which(downscaleR:::getDim(fcst) == "member")
-            tdim <- which(downscaleR:::getDim(fcst) == "time")
+            ensdim <- which(transformeR:::getDim(fcst) == "member")
+            tdim <- which(transformeR:::getDim(fcst) == "time")
             
             score <- veriApply(verifun = verifun,
                                    fcst = fcst$Data,
@@ -55,7 +55,7 @@ fwiSkill <- function(obs,
 
 #' @title Plot grid returned by functionfFwiSkill 
 #' 
-#' @description Plot grid returned by functionfFwiSkill through function plotClimatology from package downscaleR
+#' @description Plot grid returned by functionfFwiSkill through function plotClimatology from package transformeR
 #' 
 #' @param grid The grid object returned by function fwiSkill 
 #'  
@@ -63,10 +63,10 @@ fwiSkill <- function(obs,
 #' @export
 
 plotFwiSkill <- function(grid){
-      catdim <- which(downscaleR:::getDim(grid) == "cat")
+      catdim <- which(transformeR:::getDim(grid) == "cat")
       lc <- dim(grid$Data)[catdim]
       attr(grid$Data, "dimensions") <- c("member", "lat", "lon")
-      grid.r <- downscaleR:::redim(grid)
+      grid.r <- transformeR:::redim(grid)
       plotClimatology(climatology(grid.r), backdrop.theme = "coastline", par.strip.text = list(labels =paste("cat", 1:lc)))
 }
 

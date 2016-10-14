@@ -53,8 +53,9 @@
 #' @author J. Bedia \& M.Iturbide, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
 #' @export
 #' @importFrom abind abind
-#' @importFrom downscaleR makeMultiGrid
-#' @importFrom downscaleR subsetGrid
+#' @importFrom transformeR makeMultiGrid
+#' @importFrom transformeR subsetGrid
+#' @importFrom transformeR getDim
 #' @import loadeR.ECOMS
 
 
@@ -91,7 +92,7 @@ fwiWorld <- function(dataset = "WFDEI",
                         season = season[-1], years = years, members = members, time = "DD",
                         aggr.d = "mean")
       )
-      latdim <- which(downscaleR:::getDim(temp) == "lat")
+      latdim <- which(transformeR:::getDim(temp) == "lat")
       dimNames <- attr(temp$Data, "dimensions")
       a <- list()
       for(i in 1:(length(x)-1)){
