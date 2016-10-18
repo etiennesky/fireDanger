@@ -63,7 +63,7 @@ fwi1D <- function(months, Tm, H, r, W,
       non.na.ind <- setdiff(1:length(months), rm.ind)
       if (length(rm.ind) > 0) {
             warning("Missing values were removed from the time series before computation")
-            mes <- months[-rm.ind]
+            months <- months[-rm.ind]
             Tm <- Tm[-rm.ind]
             H <- H[-rm.ind]
             r <- r[-rm.ind]
@@ -102,13 +102,13 @@ fwi1D <- function(months, Tm, H, r, W,
             warning("Some negative values of wind were corrected")
             W[which(W < 0)] <- 0
       }
-      f0 <- c(init.pars[1], rep(NA,length(mes))) 
-      p0 <- c(init.pars[2], rep(NA,length(mes))) 
-      d0 <- c(init.pars[3], rep(NA,length(mes)))
-      ISI <- rep(NA, length(mes))
-      BUI <- rep(NA, length(mes))
-      FWI <- rep(NA, length(mes))
-      for (i in 1:length(mes)) {
+      f0 <- c(init.pars[1], rep(NA,length(months))) 
+      p0 <- c(init.pars[2], rep(NA,length(months))) 
+      d0 <- c(init.pars[3], rep(NA,length(months)))
+      ISI <- rep(NA, length(months))
+      BUI <- rep(NA, length(months))
+      FWI <- rep(NA, length(months))
+      for (i in 1:length(months)) {
             m0 <- (147.2 * (101 - f0[i]))/(59.5 + f0[i])
             if (r[i] > 0.5) {
                   rA <- r[i] - 0.5
@@ -146,7 +146,7 @@ fwi1D <- function(months, Tm, H, r, W,
             if (Tm[i] < -1.1) {
                   Tm[i] <- -1.1
             }
-            K <- 1.894 * (Tm[i] + 1.1) * (100 - H[i]) * Le[mes[i]] * 1e-06
+            K <- 1.894 * (Tm[i] + 1.1) * (100 - H[i]) * Le[months[i]] * 1e-06
             if (r[i] > 1.5) {
                   re <- (0.92 * r[i]) - 1.27
                   M0 <- 20 + exp(5.6348 - (p0[i] / 43.43))
@@ -169,7 +169,7 @@ fwi1D <- function(months, Tm, H, r, W,
             if (Tm[i] < -2.8) {
                   Tm[i] <- -2.8
             }
-            v <- 0.36 * (Tm[i] + 2.8) + dlf[mes[i]]
+            v <- 0.36 * (Tm[i] + 2.8) + dlf[months[i]]
             if (v < 0) {
                   v <- 0
             }

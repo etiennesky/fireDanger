@@ -10,7 +10,7 @@ fwi(multigrid, mask = NULL, lonLim = NULL, latLim = NULL, lat = 46,
 }
 \arguments{
 \item{multigrid}{containing Tm (temperature records in deg. Celsius); H (relative humidity records in \%);
-r (last 24-h accumulated precipitation in mm); W (wind velocity records in Km/h).}
+r (last 24-h accumulated precipitation in mm); W (wind velocity records in Km/h). See the Warning section.}
 
 \item{mask}{Optional. Binary (0 an 1) Grid.}
 
@@ -41,6 +41,16 @@ containing the requested components of the FWI system (either all or just FWI). 
 \description{
 Implementation of the Canadian Fire Weather Index System for multigrids
 }
+\section{Warning}{
+
+
+The variables composing the input multigrid need to have standard names, as defined by the dictionary
+ (these names are stored in the \code{multigrid$Variable$varName} component).
+These are: \code{"tas"} for temperature, \code{"tp"} for precipitation, \code{"wss"} for windspeed. In the case of relative humidity,
+either \code{"hurs"} or \code{"hursmin"} are accepted, the latter in case of FWI calculations according to the \code{"proxy"} version
+described in Bedia \emph{et al} 2014.
+}
+
 \section{Daylength adjustment factors}{
 
 By default, the function applies the original FWI daylength adjustment factors for DC and DMC (van Wagner 1987),

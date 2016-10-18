@@ -2,7 +2,7 @@
 % Please edit documentation in R/fwiGrid.R
 \name{fwiGrid}
 \alias{fwiGrid}
-\title{Fire Weather Index (FWI)}
+\title{Fire Weather Index (FWI) from multigrid}
 \usage{
 fwiGrid(multigrid, mask = NULL, return.all = FALSE, init.pars = c(85, 6,
   15), parallel = FALSE, max.ncores = 16, ncores = NULL)
@@ -29,7 +29,7 @@ FFMC, DMC and DC components, in this order. Default values as proposed by van Wa
 A grid, containing the requested components of the FWI system (either all or just FWI). See details.
 }
 \description{
-Implementation of the Canadian Fire Weather Index System
+A wrapper of function \code{fwi} to handle multigrids
 }
 \section{Daylength adjustment factors}{
 
@@ -47,5 +47,7 @@ Lawson, B.D. & Armitage, O.B., 2008. Weather guide for the Canadian Forest Fire 
 van Wagner, C.E., 1987. Development and structure of the Canadian Forest Fire Weather Index (Forestry Tech. Rep. No. 35). Canadian Forestry Service, Ottawa, Canada.
 
 van Wagner, C.E., Pickett, T.L., 1985. Equations and FORTRAN program for the Canadian forest fire weather index system (Forestry Tech. Rep. No. 33). Canadian Forestry Service, Ottawa, Canada.
+
+Bedia, J., Herrera, S., Camia, A., Moreno, J.M., Gutierrez, J.M., 2014. Forest Fire Danger Projections in the Mediterranean using ENSEMBLES Regional Climate Change Scenarios. Clim Chang 122, 185--199. doi:10.1007/s10584-013-1005-z
 }
 

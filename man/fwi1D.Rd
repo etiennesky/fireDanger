@@ -5,7 +5,7 @@
 \title{Fire Weather Index applied to 1D data}
 \usage{
 fwi1D(months, Tm, H, r, W, lat = 46, return.all = FALSE, init.pars = c(85,
-  6, 15))
+  6, 15), spin.up = 0)
 }
 \arguments{
 \item{months}{Vector of integers corresponding to the months in the data}
@@ -25,7 +25,10 @@ applying the default parameters of the original FWI System, developed in Canada.
 Default to FALSE, indicating that only FWI is returned.}
 
 \item{init.pars}{A numeric vector of length 3 with the initialization values for the
- FFMC, DMC and DC components, in this order. Default values as proposed by van Wagner (1987).}
+FFMC, DMC and DC components, in this order. Default values as proposed by van Wagner (1987).}
+
+\item{spin.up}{Non-negative integer indicating the number of days considered for FWI spin-up.
+ Default to 0 (i.e. no spin-up is considered). See the dedicated Section below for further details.}
 }
 \value{
 A vector of the same length as the input vectors (minus possible missing observations),
@@ -40,6 +43,14 @@ By default, the function applies the original FWI daylength adjustment factors f
  although it is possible to adjust them by as a function of latitude through the argument \code{lat}.
 The reference values used for each latitudinal range are those indicated in p.71 and Tables A3.1 and A3.2 (p69) in
 Lawson and Armitage (2008).
+}
+
+\section{FWI spin-up}{
+
+FWI is initializaed with some values for FFMC, DMC and DC components. This means that the first values of the series do not correspond to
+reality, until the index is iterated over several time steps (typically a few days) and is stabilized.
+ Thus, the first index values can be removed from the output. The number of days at the beginning of the series
+  are controlled via the \code{spin.up} argument.
 }
 \author{
 J. Bedia, partially based on the original FORTRAN code by van Wagner and Pickett (1985)

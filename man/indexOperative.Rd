@@ -5,10 +5,10 @@
 \title{Index calculation for CFS operative seasonal forecast and csv file generation}
 \usage{
 indexOperative(dataset = "CFSv2_seasonal_operative", index = "fwi",
-  climdir = getwd(), destdir = getwd(), url, mask = NULL,
-  fwi.mask = TRUE, dictionary = TRUE, members = 1:24,
-  aggr.mem = list(FUN = NULL), season = NULL, lonLim = NULL,
-  latLim = NULL, years = NULL, leadMonth = 0, operative = NULL,
+  climdir = getwd(), destdir = getwd(), fwi.mask = TRUE,
+  operative = NULL, url = NULL, mask = NULL, dictionary = TRUE,
+  members = 1:24, aggr.mem = list(FUN = NULL), season = NULL,
+  lonLim = NULL, latLim = NULL, years = NULL, leadMonth = 0,
   init.pars = c(85, 6, 15), parallel = FALSE, max.ncores = 16,
   ncores = NULL)
 }
@@ -22,12 +22,15 @@ Currently accepted values are "CFSv2_seasonal".}
 
 \item{destdir}{Output directory.}
 
-\item{url}{ncml directory.}
-
-\item{mask}{Directory (including file name) of the land-mask grid (*.rda).}
-
 \item{fwi.mask}{Logical. If TRUE (default), a mask is applied to exclude
 land areas which will most likely not burn, like deserts etc.}
+
+\item{operative}{Path of the R object that contains the fwi of the operative dataset. Default is NULL, so the load and fwi is computed.
+If operative is not NULL, the following parameters do not need to be specified.}
+
+\item{url}{ncml directory (FOR DATA LOADING).}
+
+\item{mask}{Directory (including file name) of the land-mask grid (*.rda) (FOR DATA LOADING).}
 
 \item{dictionary}{Path to the dictionary for variable homogenization.
 is set to TRUE, meaning that the function will internally perform the necessary homogenization steps to return the standard
@@ -41,10 +44,8 @@ a forecast or the requested variable is static (e.g. orography) it will be ignor
 \item{aggr.mem}{Member aggregation function. A list indicating the name of the
 aggregation function in first place, and other optional arguments to be passed to the aggregation function.}
 
-\item{season}{An integer vector specifying the desired season (in months, January = 1 ..., December = 12). Options include
-one to several (contiguous) months. For full year selections (not possible for all datasets, e.g. seasonal forecasts),
-the argument value must be set to season = 1:12. If the requested variable is static (e.g. orography) it will be ignored.
-See details on the definition of temporal slices.}
+\item{season}{An integer vector specifying the desired season (in months, January = 1 ..., December = 12).
+Options are: 5:8, 8:11, 11:2 and 2:5.}
 
 \item{lonLim}{Vector of length = 2, with minimum and maximum longitude coordinates, in decimal degrees, of the bounding box selected.
 For single-point queries, a numeric value with the longitude coordinate. If \code{NULL} (default), the whole longitudinal range
@@ -59,8 +60,6 @@ it will be ignored. See details on the definition of temporal slices.}
 season=1 (January) corresponds to the December initialization. Default to 1 (i.e., 1 lead month forecast). If the dataset is not a
 forecast or the requested variable is static (e.g. orography) it will be ignored. A message will be printed on screen in the first
 case if its value is different from NULL. See details on initialization times.}
-
-\item{operative}{Path of the R object that contains the fwi of the operative dataset. Default is NULL, so the load and fwi is computed.}
 
 \item{init.pars}{A numeric vector of length 3 with the initialization values for the
 FFMC, DMC and DC components, in this order. Default values as proposed by van Wagner (1987).}

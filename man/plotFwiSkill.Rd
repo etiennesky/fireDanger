@@ -10,7 +10,7 @@ plotFwiSkill(grid)
 \item{grid}{The grid object returned by function fwiSkill}
 }
 \description{
-Plot grid returned by functionfFwiSkill through function plotClimatology from package downscaleR
+Plot grid returned by functionfFwiSkill through function plotClimatology from package transformeR
 }
 \author{
 M.Iturbide

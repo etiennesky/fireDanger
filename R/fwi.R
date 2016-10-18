@@ -25,8 +25,8 @@
 #' 
 #' The variables composing the input multigrid need to have standard names, as defined by the dictionary
 #'  (these names are stored in the \code{multigrid$Variable$varName} component).
-#' These are: \code{"tas"} for temperature, \code{"tp"} for precipitation, \code{"wss} for windspeed. In the case of relative humidity,
-#' either \code{"hurs"} or \code{"hursmin"} are accepted, the latter in case of FWI calculations according to the \dquote{proxy} version
+#' These are: \code{"tas"} for temperature, \code{"tp"} for precipitation, \code{"wss"} for windspeed. In the case of relative humidity,
+#' either \code{"hurs"} or \code{"hursmin"} are accepted, the latter in case of FWI calculations according to the \code{"proxy"} version
 #' described in Bedia \emph{et al} 2014.
 #' 
 #' @section Daylength adjustment factors: 
@@ -97,7 +97,7 @@ fwi <- function(multigrid, mask = NULL, lonLim = NULL, latLim = NULL, lat = 46, 
                   mskmsk <- array3Dto2Dmat(mask1$Data)[1,]
                   ind <- which(mskmsk > 0)
             } else {
-                  ind <- which(!is.na(Tm2))
+                  ind <- unique(which(!is.na(Tm2), arr.ind = T)[,2])
             }
             b <- array(dim = dim(Tm2))
             if (length(ind) != 0) {

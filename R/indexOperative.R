@@ -67,7 +67,7 @@
 #' @importFrom transformeR climatology
 #' @importFrom transformeR interpGrid
 #' @importFrom transformeR getShape
-#' @importFrom transformeR getYearsAsIndex
+#' @importFrom transformeR getYearsAsINDEX
 #' @import loadeR.ECOMS
 
 indexOperative <- function(dataset = "CFSv2_seasonal_operative",
