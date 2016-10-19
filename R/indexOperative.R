@@ -126,7 +126,6 @@ indexOperative <- function(dataset = "CFSv2_seasonal_operative",
       lat <- coords[,2]
       lon <- coords[,1]
       
-      cellID <- paste(as.integer(lon*100), "-", as.integer(lat*100), sep = "")
       indexes <-  c("indexmean", "index90", "index30")
       for(i in 1:3){
             index.type <- indexes[i]
@@ -139,19 +138,25 @@ indexOperative <- function(dataset = "CFSv2_seasonal_operative",
             }
             dirskill <- paste(climdir, "/", index, gsub("index",replacement = "", x = index.type),"_SKILL_", season[2], "_", season[length(season)], ".rda", sep = "")
             dirClim <- paste(climdir, "/", index, gsub("index",replacement = "", x = index.type),"_WFDEI_", season[2], "_", season[length(season)], ".rda", sep = "")
+           
+            sk <- get(load(dirskill))
+            sk_sub <- subsetGrid(sk, lonLim = range(lon), latLim = range(lat), outside = T)
+            coords <- expand.grid(sk_sub$xyCoords$x, sk_sub$xyCoords$y)
+            lat <- coords[,2]
+            lon <- coords[,1]
+            cellID <- paste(as.integer(lon*100), "-", as.integer(lat*100), sep = "")
+            ###
+            obs <- get(load(dirClim, verbose = T))
+            obs_sub <- subsetGrid(obs, lonLim = range(lon), latLim = range(lat), outside = T, season = season[-1])#season = season[-1]
+            obs_clim <- transformeR:::redim(climatology(obs_sub, clim.fun = list(FUN=mean, na.rm = T)), drop = T)
+            operative <- subsetGrid(operative, lonLim = range(lon), latLim = range(lat), outside = T)
+            oper_clim <- transformeR:::redim(climatology(operative, clim.fun = aggr.clim), drop = T)
             if(fwi.mask == TRUE){
                   dirMask <- paste(climdir, "/fwi_mask.rda", sep = "")
                   fwmsk <- get(load(dirMask))
                   fwmsk_sub <- subsetGrid(fwmsk, lonLim = range(lon), latLim = range(lat), outside = T)
                   fwi_Mask <- as.vector(t(fwmsk_sub$Data))
             }
-            sk <- get(load(dirskill))
-            sk_sub <- subsetGrid(sk, lonLim = range(lon), latLim = range(lat), outside = T)
-            ###
-            obs <- get(load(dirClim, verbose = T))
-            obs_sub <- subsetGrid(obs, lonLim = range(lon), latLim = range(lat), outside = T, season = season[-1])#season = season[-1]
-            obs_clim <- transformeR:::redim(climatology(obs_sub, clim.fun = list(FUN=mean, na.rm = T)), drop = T)
-            oper_clim <- transformeR:::redim(climatology(operative, clim.fun = aggr.clim), drop = T)
             fwiClimatology <- as.vector(t(obs_clim$Data))
             fwiClimatology[which(is.na(fwiClimatology))] <- NA
             fwiPrediction <- as.vector(t(oper_clim$Data))
@@ -246,7 +251,7 @@ wfwiOP <- function(dataset = "CFSv2_seasonal_operative",
                    ncores = NULL){
       x <-  c(-90, -80, -70, -60, -50, -40, -30, -20, -10, 1, 10, 20, 30, 40, 50, 60, 70, 80, 90)
       
-      if (is.null(latLim)) latLim <-c(-90, 90)
+      if (is.null(latLim)) latLim <-c(-60, 70)
       if (is.null(lonLim) & !is.null(mask)) lonLim <- c(min(getCoordinates(mask)$x),max(getCoordinates(mask)$x))
       latind <- findInterval(latLim, x)[1] : findInterval(latLim, x)[2]
       if(x[latind[length(latind)]] < latLim[2]) latind[3] <- latind[2]+1
