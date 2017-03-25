@@ -11,4 +11,3 @@ Daily precipitation, maximum and minimum temperature records.
 data(meteoSpain)
 str(meteoSpain)
 }
-

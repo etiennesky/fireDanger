@@ -34,4 +34,3 @@ J. Bedia, S. Herrera, J.M. Gutierrez, G. Zavala, I. R. Urbieta and J.M. Moreno (
 Index to different reanalysis products in the Iberian Peninsula. \emph{Nat. Hazards Earth Syst. Sci.}, 12, 699-708.
 \url{http://www.nat-hazards-earth-syst-sci.net/12/699/2012/nhess-12-699-2012.html}
 }
-
