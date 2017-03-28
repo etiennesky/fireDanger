@@ -86,7 +86,9 @@ particular case of large multimember datasets or large grids.
 
 Parallel computing is currently not available for Windows machines.
 }
-
+\author{
+J. Bedia \& M. Iturbide
+}
 \references{
 \itemize{
 \item Lawson, B.D. & Armitage, O.B., 2008. Weather guide for the Canadian Forest Fire Danger Rating System. Northern Forestry Centre, Edmonton (Canada).
@@ -96,6 +98,4 @@ Parallel computing is currently not available for Windows machines.
 \item van Wagner, C.E., Pickett, T.L., 1985. Equations and FORTRAN program for the Canadian forest fire weather index system (Forestry Tech. Rep. No. 33). Canadian Forestry Service, Ottawa, Canada.
 }
 }
-\author{
-J. Bedia \& M. Iturbide
-}
+

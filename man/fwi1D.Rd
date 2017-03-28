@@ -53,7 +53,9 @@ FWI is initialized with some values for FFMC, DMC and DC components. This means 
  Thus, the first index values can be optionally set to \code{NA}. The number of days at the beginning of the series to be set to \code{NA}
   is controlled via the \code{spin.up} argument.
 }
-
+\author{
+J. Bedia, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
+}
 \references{
 \itemize{
 \item Lawson, B.D. & Armitage, O.B., 2008. Weather guide for the Canadian Forest Fire Danger Rating System. Northern Forestry Centre, Edmonton (Canada).
@@ -63,6 +65,4 @@ FWI is initialized with some values for FFMC, DMC and DC components. This means 
 \item van Wagner, C.E., Pickett, T.L., 1985. Equations and FORTRAN program for the Canadian forest fire weather index system (Forestry Tech. Rep. No. 33). Canadian Forestry Service, Ottawa, Canada.
 }
 }
-\author{
-J. Bedia, partially based on the original FORTRAN code by van Wagner and Pickett (1985)
-}
+
