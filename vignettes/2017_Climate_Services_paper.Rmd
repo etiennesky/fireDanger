@@ -385,7 +385,7 @@ plotClimatology(upper.tercile,
 ```
 
 
-### Visualization
+## Visualization
 
 The `visualizeR` package is aimed at the visual communication of the uncertainty in seasonal forecasts, providing tools that incorporate different verification methods. In the following sections, we illustrate three different visualization examples involving functions `tercilePlot`, `reliabilityCategories` and `bublePlot`. Further worked examples on the use and installation of `visualizeR` can be found in the corresponding gitHub repository: [https://github.com/SantanderMetGroup/visualizeR](https://github.com/SantanderMetGroup/visualizeR)
 
@@ -393,7 +393,7 @@ The `visualizeR` package is aimed at the visual communication of the uncertainty
 library(visualizeR)
 ```
 
-#### Tercile validation
+### Tercile validation
 In order to gain a better insight into the areas of high skill (sec. 3.3 in the manuscript), next we will spatially subset the data with function `subsetGrid`. The extracted region encompasses grid boxes over Greece and Bulgaria.
 
 ```{r, message = FALSE, fig.align='center', warning = FALSE}
@@ -418,7 +418,7 @@ tercilePlot(fwimean_hind_sub, obs = fwimean_obs_sub, color.pal = "ypb")
 ```
 
 \newpage
-#### Reliability
+### Reliability
 
 Function `reliabilityCategories` computes the reliability category of the considered domain. For instance, the following example shows reliability diagrams obtained for the low, normal and high terciles (Event1, Event2 and Event3) in the selected region. Whereas the diagonal ---indicated by a dashed gray line--- would mark the perfect reliability, points falling in the so-called skill region (in gray) still contribute positively to the forecast skill. The reliability line (solid black line) is the result of fitting the points, which are represented in different size according to the number of forecasts in each bin.
 
@@ -428,7 +428,7 @@ reliabilityCategories(obs = fwimean_obs_sub, hindcast = fwimean_hind_sub,
 ```
 
 
-#### Bubble plot
+### Bubble plot
 
 The `bubblePlot` function combines in a geographic map several aspects of the seasonal forecast system with different levels of complexity using three properties of the bubbles: colour, size and transparency. Type `?bubblePlot` for details.
 
