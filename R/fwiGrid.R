@@ -6,7 +6,8 @@
 #' r (last 24-h accumulated precipitation in mm); W (wind velocity records in Km/h). See details.
 #' @param mask Optional. Binary grid (0 and 1, 0 for sea areas) with \code{dimensions} attribute \code{c("lat", "lon")}.
 #' @param what Character string. What component of the FWI system is computed?. Default to \code{"FWI"}.
-#'  See \code{\link{fwi1D}} for details and possible values.
+#' Note that unlike \code{\link{fwi1D}}, only one single component choice is possible in \code{fwiGrid}.
+#'   See \code{\link{fwi1D}} for details and possible values.
 #' @param nlat.chunks For an efficient memory usage, the computation of FWI can be split into 
 #' latitudinal bands (chunks) sepparately. The number of chunks is controlled here. 
 #' Default to \code{NULL} (i.e., no chunking applied).
@@ -26,6 +27,8 @@
 #' These are: \code{"tas"} for temperature, \code{"tp"} for precipitation, \code{"wss"} for windspeed. In the case of relative humidity,
 #' either \code{"hurs"} or \code{"hursmin"} are accepted, the latter in case of FWI calculations according to the \dQuote{proxy} version
 #' described in Bedia \emph{et al} 2014.
+#' 
+#' Note that the order of the variables within the multigrid is not relevant. These are indexed by variable names.
 #' 
 #' \strong{Landmask definition}
 #' 
