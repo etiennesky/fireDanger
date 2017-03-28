@@ -200,7 +200,7 @@ mask <- interpGrid(cfs_mask, getGrid(multigrid_hind))
 ``` 
 
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
 load("/media/maialen/work/WORK/LOCAL/CONTRATA/tutorial/data/cfs_mask.rda")
 mask <- interpGrid(cfs_mask, getGrid(multigrid_hind))
 ``` 
@@ -253,7 +253,7 @@ plotClimatology(climatology(hindcastJJAS),
 To calculate the mean CFS bias with respect to WFDEI we will perform the multi-member mean of the forecast with function `aggregateGrid`. Then, we will interpolate the observed FWI to the CFS's grid, to operate on the same spatial data, enabling the bias calculation. This is easily done with functions `interpGrid` and `getGrid`. The bias is assigned to a new grid object ("bias"). 
 
 
-```{r, message = FALSE}
+```{r, message = FALSE, warning = FALSE}
 hindcast_aggr <- aggregateGrid(hindcastJJAS, aggr.mem = list(FUN = mean))
 bias <- hindcast_aggr
 obsJJAS_int <- interpGrid(grid = obsJJAS, new.coordinates = getGrid(hindcast_aggr))
@@ -388,7 +388,7 @@ plotClimatology(upper.tercile,
 #### Tercile vali--no-build-vignettes --resave-datadation
 In order to gain a better insight into the areas of high skill (sec. 3.3 in the manuscript), next we will spatially subset the data with function `subsetGrid`. The extracted region encompasses grid boxes over Greece and Bulgaria.
 
-```{r, message = FALSE, fig.align='center'}
+```{r, message = FALSE, fig.align='center', warning = FALSE}
 fwimean_hind_sub <- subsetGrid(fwimean_hind_detrend, 
                                latLim = c(40,43.5), lonLim = c(24,26.5))
 fwimean_obs_sub <- subsetGrid(fwimean_obs_detrend, 
@@ -404,7 +404,7 @@ plotClimatology(climatology(fwimean_obs_sub),
 
 The tercile validation plot is obtained by function `tercileValidation`. Terciles are arranged by rows. Further details for graph interpretation are given in Sec. 2.5.2. of the manuscript.
 
-```{r, message = FALSE, fig.align='center'}
+```{r, message = FALSE, fig.align='center', warning = FALSE}
 
 tercilePlot(fwimean_hind_sub, obs = fwimean_obs_sub, color.pal = "ypb")
 ```
