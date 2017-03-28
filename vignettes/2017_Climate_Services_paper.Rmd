@@ -23,7 +23,7 @@ library(easyVerification)
 
 In the last section of this tutorial (sec. Visualization) we also illustrate the use of different functionalities from the `visualizeR` package for seasonal forecast uncertainty visualization.
 
-## Accessing the User Data Gateway (UDG)
+# Accessing the User Data Gateway (UDG)
 
 The User Data Gateway is the one stop shop for climate data access maintained by the Santander MetGroup. The UDG builds on the [THREDDS Access Portal (UDG-TAP)](http://meteo.unican.es/udg-tap/home) which is the entry point for authentication and data access ([information for registration](https://meteo.unican.es/trac/wiki/udg/registration)). Authorization is organized in thematic groups, according to the data policies of different projects and international initiatives. There is also public data available that is open for everyone, for instance, the NCEP/NCAR Reanalysis 1 data, that is used in this worked example. After registration, a username and password is provided to [sign in](http://meteo.unican.es/udg-tap/signin?referrer=http://meteo.unican.es/udg-tap/user/datasets). 
 
@@ -175,7 +175,7 @@ load("/media/maialen/work/WORK/LOCAL/CONTRATA/tutorial/data/multigrid_hind.rda")
 load("/media/maialen/work/WORK/LOCAL/CONTRATA/tutorial/data/multigrid_obs.rda")
 ```
 
-## FWI calculation
+# FWI calculation
 
 The function `fwiGrid` in package `fireDanger` is a wrapper of function `fwi` in the same package, that handles in a convenient way the model data structures ("grids") provided by the `loadeR` and `loadeR.ECOMS` packages. It operates on either ordinary grids (e.g. gridded observations, reanalysis...) or multi-member grids, as it is the case of seasonal forecast datasets. In the latter, FWI is computed member by member independently. The output is a grid containing the FWI, as well as all the metadata (dates, attributes etc.). 
 
@@ -273,7 +273,7 @@ plotClimatology(climatology(bias),
                 main = "CFS mean bias")
 ```
 
-## Bias Correction
+# Bias Correction
 
 
 In the `downscaleR` package, the user can find the standard bias correction techniques used in the literature (scaling factors and quantile mapping) as well as other recently published extensions of these techniques (e.g. the multi-variable bias-correction ISI-MIP method, Hempel et al. 2013). The bias correction methods implemented in `downscaleR` are included in the functions `biasCorrection` and  `isimip`. For more information, visit the [wiki of downscaleR](https://github.com/SantanderMetGroup/downscaleR/wiki).
@@ -290,7 +290,7 @@ hindcast_bc <- biasCorrection(y = obsJJAS, x = hindcastJJAS,
 load("/media/maialen/work/WORK/LOCAL/CONTRATA/tutorial/data/hindcast_bc.rda")
 ```
 
-## Calculating FWI climatologies
+# Calculating FWI climatologies
 
 Climatologies are easily calculated by means of function `aggregateGrid`. Here, data is annually aggregated by the desired aggregation function.
 
@@ -329,7 +329,7 @@ fwi30_obs <- aggregateGrid(obs, aggr.y = list(FUN = function(x) sum(x > 30)/leng
 
 In the following we will use only the `fwimean` climatology.
 
-## Forecast verification
+# Forecast verification
 
 We use function `veriApply` of package `easyVerification` to compute the different verification measures. In this example we will compute the ROC Skill Score (ROCSS) (verifun = "EnsRocss"). In the manuscript, the bias-corrected and the raw FWI of the forecasts are validated (objects `fwimean_hind` and `fwimean_hind_raw` in this tutorial). For brevity, we will only consider the bias-corrected data in the following, this is, object `fwimean_hind`.
 
@@ -385,7 +385,7 @@ plotClimatology(upper.tercile,
 ```
 
 
-## Visualization
+# Visualization
 
 The `visualizeR` package is aimed at the visual communication of the uncertainty in seasonal forecasts, providing tools that incorporate different verification methods. In the following sections, we illustrate three different visualization examples involving functions `tercilePlot`, `reliabilityCategories` and `bublePlot`. Further worked examples on the use and installation of `visualizeR` can be found in the corresponding gitHub repository: [https://github.com/SantanderMetGroup/visualizeR](https://github.com/SantanderMetGroup/visualizeR)
 
