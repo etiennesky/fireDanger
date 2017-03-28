@@ -66,7 +66,7 @@
 #' 
 #' @importFrom abind abind asub
 #' @importFrom parallel parLapply splitIndices
-#' @importFrom transformeR redim getDim getShape parallelCheck getYearsAsINDEX subsetGrid array3Dto2Dmat mat2Dto3Darray interpGrid getGrid
+#' @importFrom transformeR redim getDim getShape parallelCheck getYearsAsINDEX subsetGrid array3Dto2Dmat mat2Dto3Darray 
 
 fwiGrid <- function(multigrid,
                     mask = NULL,
