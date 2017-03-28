@@ -12,15 +12,16 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-This is a worked example that reproduces the steps followed in Bedia et al. 2017 through the use of R-package `fireDanger`, that contains the functionalities for computing the Fire Weather Index (FWI). Packages `loadeR.ECOMS`, `downscaleR`, `visualizeR` and `easyVerification` have also been used for data loading, data manipulation, bias correction and verification. 
+This is a worked example that reproduces the steps followed in Bedia et al. 2017 through the use of R-package `fireDanger`, that contains the functionalities for computing the Fire Weather Index (FWI). Packages `loadeR.ECOMS`, `downscaleR` and `easyVerification` have also been used for data loading, data manipulation, bias correction and verification. 
 
 ```{r, message=FALSE}
 library(fireDanger)
 library(loadeR.ECOMS)
 library(downscaleR)
-library(visualizeR)
 library(easyVerification)
 ```
+
+In the last section of this tutorial (sec. Visualization) we also illustrate the use of different functionalities from the `visualizeR` package for seasonal forecast uncertainty visualization.
 
 ## Accessing the User Data Gateway (UDG)
 
@@ -100,7 +101,7 @@ load("/media/maialen/work/WORK/LOCAL/CONTRATA/tutorial/data/Tm_hind.rda")
 ```
 
 
-```{r, results='hide', fig.keep='all', fig.align='center'}
+```{r, results='hide', fig.keep='all', fig.align='center', message=FALSE}
 plotClimatology(climatology(Tm), backdrop.theme = "coastline")
 ```
 
@@ -385,7 +386,14 @@ plotClimatology(upper.tercile,
 
 
 ### Visualization
-#### Tercile vali--no-build-vignettes --resave-datadation
+
+The `visualizeR` package is aimed at the visual communication of the uncertainty in seasonal forecasts, providing tools that incorporate different verification methods. In the following sections, we illustrate three different visualization examples involving functions `tercilePlot`, `reliabilityCategories` and `bublePlot`. Further worked examples on the use and installation of `visualizeR` can be found in the corresponding gitHub repository: [https://github.com/SantanderMetGroup/visualizeR](https://github.com/SantanderMetGroup/visualizeR)
+
+```{r, message=FALSE}
+library(visualizeR)
+```
+
+#### Tercile validation
 In order to gain a better insight into the areas of high skill (sec. 3.3 in the manuscript), next we will spatially subset the data with function `subsetGrid`. The extracted region encompasses grid boxes over Greece and Bulgaria.
 
 ```{r, message = FALSE, fig.align='center', warning = FALSE}
@@ -404,7 +412,7 @@ plotClimatology(climatology(fwimean_obs_sub),
 
 The tercile validation plot is obtained by function `tercileValidation`. Terciles are arranged by rows. Further details for graph interpretation are given in Sec. 2.5.2. of the manuscript.
 
-```{r, message = FALSE, fig.align='center', warning = FALSE}
+```{r, message = FALSE, fig.align='center', warning = FALSE, fig.height=4.5, fig.width=10.5}
 
 tercilePlot(fwimean_hind_sub, obs = fwimean_obs_sub, color.pal = "ypb")
 ```
@@ -419,6 +427,16 @@ reliabilityCategories(obs = fwimean_obs_sub, hindcast = fwimean_hind_sub,
                       n.events = 3, n.bins = 5)
 ```
 
+
+#### Bubble plot
+
+The `bubblePlot` function combines in a geographic map several aspects of the seasonal forecast system with different levels of complexity using three properties of the bubbles: colour, size and transparency. Type `?bubblePlot` for details.
+
+```{r, message=FALSE, warning=FALSE, fig.height=4.5, fig.width=10.5}
+bubblePlot(hindcast = fwimean_hind, obs = fwimean_obs, 
+           bubble.size = 3, 
+           size.as.probability = TRUE, score = FALSE)
+```
 
 
 ***
