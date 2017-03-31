@@ -3,9 +3,12 @@ title: "2017 Climate Services paper"
 author: "J. Bedia & M. Iturbide"
 date: "March 27, 2017"
 output:
-  pdf_document: default
-  html_document: default
+   html_document: 
+      toc: true
+      number_sections: true
 ---
+
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -28,7 +31,7 @@ In the last section of this tutorial (sec. Visualization) we also illustrate the
 The User Data Gateway is the one stop shop for climate data access maintained by the Santander MetGroup. The UDG builds on the [THREDDS Access Portal (UDG-TAP)](http://meteo.unican.es/udg-tap/home) which is the entry point for authentication and data access ([information for registration](https://meteo.unican.es/trac/wiki/udg/registration)). Authorization is organized in thematic groups, according to the data policies of different projects and international initiatives. There is also public data available that is open for everyone, for instance, the NCEP/NCAR Reanalysis 1 data, that is used in this worked example. After registration, a username and password is provided to [sign in](http://meteo.unican.es/udg-tap/signin?referrer=http://meteo.unican.es/udg-tap/user/datasets). 
 
 
-### Loading data using the R interface
+## Loading data using the R interface
 
 [`loadeR.ECOMS`](http://meteo.unican.es/trac/wiki/udg/ecoms/RPackage) is the R-package providing transparent access to different seasonal forecast products available through the UDG (see the complete [Table of available datasets and variables](http://meteo.unican.es/trac/wiki/udg/ecoms/dataserver/catalog)).
 
@@ -44,7 +47,7 @@ loginUDG(username = "myuser", password = "mypassword")
 
 ***
 
-#### Loading seasonal forecast data
+### Loading seasonal forecast data
 
 
 
@@ -117,7 +120,7 @@ attr(W$Variable, "units") <- "km.h-1"
 ## make multigrid
 multigrid_hind <- makeMultiGrid(Tm, H, r, W)
 ```
-#### Loading Observations
+### Loading Observations
 
 The same operation is repeated to get the multigrid of the observations, in this case we will use the Watch Forcing Dataset based on ERA-Interim, as described in the paper (dataset = `WFDEI`). Note that in this case the arguments `leadMonth` and `members`, particular for predictions, do not apply. Also, because the WFDEI variables [currently available](http://meteo.unican.es/trac/wiki/udg/ecoms/dataserver/catalog) are already daily aggregated, there is no need to specify particular time aggregation options, as the default will load the maximum temporal resolution. 
 
@@ -181,7 +184,7 @@ The function `fwiGrid` in package `fireDanger` is a wrapper of function `fwi` in
 
 There are several arguments controlling the different options and output values. If these are not provided, the default FWI is computed. One optional (yet important) argument is the argument `mask`. It is a land mask that avoids FWI calculation on the sea. In this case, WFDEI is a land dataset, and therefore the argument can be omitted (default to `NULL`). However, in the case of CFSv2, it is highly advisable to apply a land-mask to avoid unnecessary calculations. 
 
-### Calculating observed (WFDEI) FWI
+## Calculating observed (WFDEI) FWI
 
 ```{r, message = FALSE, eval = FALSE}
 obs <- fwiGrid(multigrid = multigrid_obs)
@@ -191,7 +194,7 @@ obs <- fwiGrid(multigrid = multigrid_obs)
 load("/media/maialen/work/WORK/LOCAL/CONTRATA/tutorial/data/obs.rda")
 ```
 
-### Seasonal Forecast Hindcast
+## Seasonal Forecast Hindcast
 
 In this example, the CFSv2 model mask is used to avoid sea surface when computing the FWI. The mask is loaded by requesting the variable "lm" (land mask) in function `loadECOMS`. To ensure spatial domain consistence between object `multigrid_hind` and the mask we interpolate `cfs_mask` to the `multigrid_hind` grid with functions `interpGrid` and `getGrid`.
 
@@ -217,7 +220,7 @@ load("/media/maialen/work/WORK/LOCAL/CONTRATA/tutorial/data/hindcast.rda")
 ```
 
 
-### Adjusting the fire season 
+## Adjusting the fire season 
 
 As indicated in the paper, a spin-up period of 1 month is used to calculate FWI. Now, it is time to remove this first month (May), to retain the data for the fire season (JJAS). This can be done using the `subsetGrid` function from `downscaleR`, allowing flexible grid subsetting along selected dimensions:
 
@@ -279,7 +282,7 @@ plotClimatology(climatology(bias),
 In the `downscaleR` package, the user can find the standard bias correction techniques used in the literature (scaling factors and quantile mapping) as well as other recently published extensions of these techniques (e.g. the multi-variable bias-correction ISI-MIP method, Hempel et al. 2013). The bias correction methods implemented in `downscaleR` are included in the functions `biasCorrection` and  `isimip`. For more information, visit the [wiki of downscaleR](https://github.com/SantanderMetGroup/downscaleR/wiki).
 
 
-### Empirical quantile mapping approach:
+## Empirical quantile mapping approach:
 
 ```{r, message = FALSE, eval = FALSE}
 hindcast_bc <- biasCorrection(y = obsJJAS, x = hindcastJJAS, 
@@ -294,7 +297,7 @@ load("/media/maialen/work/WORK/LOCAL/CONTRATA/tutorial/data/hindcast_bc.rda")
 
 Climatologies are easily calculated by means of function `aggregateGrid`. Here, data is annually aggregated by the desired aggregation function.
 
-### fwimean
+## fwimean
 
 fwimean is the seasonal mean value. 
 
@@ -315,13 +318,13 @@ fwimean_hind_raw <- aggregateGrid(hindcast, aggr.y = list(FUN = mean, na.rm = TR
 
 Other common FWI climatologies are FWI90 (percentile 90) and FOT30 (frequency of days above the FWI value 30):
 
-### FWI90
+## FWI90
 
 ```{r, message = FALSE}
 fwi90_obs <- aggregateGrid(obs, aggr.y = list(FUN = quantile, probs = .9, na.rm = T))
 ```
 
-### FOT30
+## FOT30
 
 ```{r, message = FALSE}
 fwi30_obs <- aggregateGrid(obs, aggr.y = list(FUN = function(x) sum(x > 30)/length(x)))
@@ -340,7 +343,7 @@ fwimean_obs_detrend <- detrendGrid(fwimean_obs)
 fwimean_hind_detrend <- detrendGrid(fwimean_hind)
 ```
 
-### ROC Skill Score
+## ROC Skill Score
 
 The tercile-based probabilistic approach described in the manuscript (sec. 2.5.1. ROC Skill Score) is applied by means of function `veriApply`. In this case we will extract the ROC Skill score of the upper-tercile, for which the threshold is set in 2/3 (argument `prob`). This way two FWI categories are obained (i.e. above-normal and the rest). If three categorizations are preferred a vector of two thresholds is passed to argument `prob` (`prob = c(1/3, 2/3)`) obtaining the categories described in the manuscript (i.e. normal, below-normal
 and above-normal).
@@ -393,7 +396,7 @@ The `visualizeR` package is aimed at the visual communication of the uncertainty
 library(visualizeR)
 ```
 
-### Tercile validation
+## Tercile validation
 In order to gain a better insight into the areas of high skill (sec. 3.3 in the manuscript), next we will spatially subset the data with function `subsetGrid`. The extracted region encompasses grid boxes over Greece and Bulgaria.
 
 ```{r, message = FALSE, fig.align='center', warning = FALSE}
@@ -418,7 +421,29 @@ tercilePlot(fwimean_hind_sub, obs = fwimean_obs_sub, color.pal = "ypb")
 ```
 
 \newpage
-### Reliability
+## Reliability
+
+```{r, eval=FALSE, echo=FALSE}
+download zip
+```
+
+
+```{r, eval=FALSE, echo=FALSE}
+library(rgdal)
+regions <- readOGR(dsn = "my_directory", layer = "EU_MED_NUTS2")
+```
+
+```{r, echo=FALSE, message=FALSE, eval=FALSE}
+library(rgdal)
+regions <- readOGR(dsn = "/media/maialen/work/WORK/LOCAL/CONTRATA/tutorial/data", layer = "EU_MED_NUTS2")
+```
+
+
+```{r, echo = FALSE, eval=FALSE, message = FALSE, results='hide',fig.keep='all', fig.align='center', fig.height=4, fig.width=10}
+reliabilityCategories(obs = fwimean_obs, hindcast = fwimean_hind, 
+                      regions = regions[2], 
+                      n.events = 3, n.bins = 5)
+```
 
 Function `reliabilityCategories` computes the reliability category of the considered domain. For instance, the following example shows reliability diagrams obtained for the low, normal and high terciles (Event1, Event2 and Event3) in the selected region. Whereas the diagonal ---indicated by a dashed gray line--- would mark the perfect reliability, points falling in the so-called skill region (in gray) still contribute positively to the forecast skill. The reliability line (solid black line) is the result of fitting the points, which are represented in different size according to the number of forecasts in each bin.
 
@@ -428,7 +453,7 @@ reliabilityCategories(obs = fwimean_obs_sub, hindcast = fwimean_hind_sub,
 ```
 
 
-### Bubble plot
+## Bubble plot
 
 The `bubblePlot` function combines in a geographic map several aspects of the seasonal forecast system with different levels of complexity using three properties of the bubbles: colour, size and transparency. Type `?bubblePlot` for details.
 
