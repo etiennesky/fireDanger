@@ -3,9 +3,7 @@
 .RData
 .project
 ignore
-commonR
-init.R
 fireDanger.Rproj
 .Rprofile
 .Rbuildignore
-.~lock.fwimean_CFSv2_seasonal_operative_6_8.csv#
+*~
