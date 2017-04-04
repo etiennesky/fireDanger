@@ -4,25 +4,29 @@ Depends:
 Imports:
     abind,
     transformeR,
-    parallel,
+    RCurl,
+    parallel
 Suggests:
     visualizeR,
     loadeR,
     loadeR.ECOMS,
     downscaleR,
-    easyVerification
+    easyVerification,
+    knitr,
+    rmarkdown,
+    RColorBrewer
+VignetteBuilder: knitr
 Type: Package
 Title: Fire weather index calculation from station and model data
-Version: 1.0-1
-Date: 2017-03-25
+Version: 1.0.1
+Date: 2017-04-04
 Authors@R: as.person(c(
     "Santander Meteorology Group <http://meteo.unican.es> [aut]",
     "Joaquin Bedia <bediaj@unican.es> [ctb, cre]",
     "Maialen Iturbide <miturbide@ifca.unican.es> [ctb]"))
 BugReports: https://github.com/SantanderMetGroup/fireDanger/issues
 URL: https://github.com/SantanderMetGroup/fireDanger
-Description: Tools for computing the Fire Weather Index, the package is conceived 
-	for dealing with forecast (multi-member) data.
+Description: Tools for computing the Fire Weather Index from weather station and numerical climate model data.
 License: GPL (>= 3)
 LazyData: true
 RoxygenNote: 6.0.1

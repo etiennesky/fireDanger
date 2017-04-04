@@ -7,3 +7,5 @@ fireDanger.Rproj
 .Rprofile
 .Rbuildignore
 *~
+vignettes/cache
+vignettes/figure
