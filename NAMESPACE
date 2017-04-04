@@ -2,6 +2,7 @@
 
 export(fwi1D)
 export(fwiGrid)
+importFrom(RCurl,getURL)
 importFrom(abind,abind)
 importFrom(abind,asub)
 importFrom(parallel,parLapply)
@@ -15,3 +16,4 @@ importFrom(transformeR,mat2Dto3Darray)
 importFrom(transformeR,parallelCheck)
 importFrom(transformeR,redim)
 importFrom(transformeR,subsetGrid)
+importFrom(utils,packageDescription)

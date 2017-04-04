@@ -1,11 +1,5 @@
 New in fireDanger
 =================
 
-* Depends from transformeR, eliminated dependencies from downscaleR and loadeR.ECOMS
-* Calculation of all FWI System components from grids
-* FWI spin.up argument introduced to consider user-selected spin-up periods
-* New version to preserve missing values of the input series (i.e. temporal i/o consistency)
-* Deleted the implicit removal of first month in `fwiGrid` (`subsetGrid` can be optionally applied after FWI calculation)
-* Bug fix in latitudinal chunking
-* Other minor bug fixes and enhancements
+* Added package vignette
 * Documentation updates

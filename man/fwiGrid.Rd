@@ -15,7 +15,8 @@ r (last 24-h accumulated precipitation in mm); W (wind velocity records in Km/h)
 \item{mask}{Optional. Binary grid (0 and 1, 0 for sea areas) with \code{dimensions} attribute \code{c("lat", "lon")}.}
 
 \item{what}{Character string. What component of the FWI system is computed?. Default to \code{"FWI"}.
-See \code{\link{fwi1D}} for details and possible values.}
+Note that unlike \code{\link{fwi1D}}, only one single component choice is possible in \code{fwiGrid}.
+  See \code{\link{fwi1D}} for details and possible values.}
 
 \item{nlat.chunks}{For an efficient memory usage, the computation of FWI can be split into 
 latitudinal bands (chunks) sepparately. The number of chunks is controlled here. 
@@ -47,6 +48,8 @@ The variables composing the input multigrid are expected to have standard names,
 These are: \code{"tas"} for temperature, \code{"tp"} for precipitation, \code{"wss"} for windspeed. In the case of relative humidity,
 either \code{"hurs"} or \code{"hursmin"} are accepted, the latter in case of FWI calculations according to the \dQuote{proxy} version
 described in Bedia \emph{et al} 2014.
+
+Note that the order of the variables within the multigrid is not relevant. These are indexed by variable names.
 
 \strong{Landmask definition}
 
@@ -83,9 +86,7 @@ particular case of large multimember datasets or large grids.
  
 Parallel computing is currently not available for Windows machines.
 }
-\author{
-J. Bedia \& M. Iturbide
-}
+
 \references{
 \itemize{
 \item Lawson, B.D. & Armitage, O.B., 2008. Weather guide for the Canadian Forest Fire Danger Rating System. Northern Forestry Centre, Edmonton (Canada).
@@ -95,4 +96,6 @@ J. Bedia \& M. Iturbide
 \item van Wagner, C.E., Pickett, T.L., 1985. Equations and FORTRAN program for the Canadian forest fire weather index system (Forestry Tech. Rep. No. 33). Canadian Forestry Service, Ottawa, Canada.
 }
 }
-
+\author{
+J. Bedia \& M. Iturbide
+}
