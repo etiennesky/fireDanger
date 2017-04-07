@@ -2,7 +2,6 @@
 
 export(fwi1D)
 export(fwiGrid)
-importFrom(RCurl,getURL)
 importFrom(abind,abind)
 importFrom(abind,asub)
 importFrom(parallel,parLapply)
