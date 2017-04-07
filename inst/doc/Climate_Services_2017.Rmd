@@ -1,6 +1,6 @@
 ---
 title: "Seasonal Predictions of Fire Weather Index: Paving the Way for their operational applicability in Mediterranean Europe"
-subtitle: "Climate Services paper, 2017. Companion R examples"
+subtitle: "Companion R examples of the paper published in Climate Services (2017, DOI:10.1016/j.cliser.2017.04.001)"
 author: "J. Bedia & M. Iturbide"
 date: "`r Sys.Date()`"
 abstract: |
@@ -65,7 +65,7 @@ library(loadeR.ECOMS)
 The package `transformeR` allows performing climate data transformations, including Principal Component/EOF analysis, subsetting, aggregation, regridding/interpolation... In this vignette, the subsetting, aggregation, detrending and visualization capabilitites of `transformeR` will be used.
 
 ```{r, eval=FALSE}
-devtools::install_github("SantanderMetGroup/transformeR@v0.0.7")
+devtools::install_github("SantanderMetGroup/transformeR@v0.0.8")
 ```
 
 ```{r}

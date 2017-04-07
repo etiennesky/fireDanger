@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE,
 library(loadeR.ECOMS)
 
 ## ---- eval=FALSE---------------------------------------------------------
-#  devtools::install_github("SantanderMetGroup/transformeR@v0.0.7")
+#  devtools::install_github("SantanderMetGroup/transformeR@v0.0.8")
 
 ## ------------------------------------------------------------------------
 library(transformeR)

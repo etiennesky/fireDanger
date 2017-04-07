@@ -12,7 +12,7 @@
 
 <meta name="author" content="J. Bedia &amp; M. Iturbide" />
 
-<meta name="date" content="2017-04-04" />
+<meta name="date" content="2017-04-07" />
 
 <title>Seasonal Predictions of Fire Weather Index: Paving the Way for their operational applicability in Mediterranean Europe</title>
 
@@ -79,9 +79,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 <h1 class="title toc-ignore">Seasonal Predictions of Fire Weather Index: Paving the Way for their operational applicability in Mediterranean Europe</h1>
-<h3 class="subtitle"><em>Climate Services paper, 2017. Companion R examples</em></h3>
+<h3 class="subtitle"><em>Companion R examples of the paper published in Climate Services (2017, <a href="DOI:10.1016/j.cliser.2017.04.001" class="uri">DOI:10.1016/j.cliser.2017.04.001</a>)</em></h3>
 <h4 class="author"><em>J. Bedia &amp; M. Iturbide</em></h4>
-<h4 class="date"><em>2017-04-04</em></h4>
+<h4 class="date"><em>2017-04-07</em></h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 <p>This is a worked example that reproduces the steps followed in Bedia et al. 2017 using the R-package <code>fireDanger</code>, that contains functions for computing the different components of the Fire Weather Index System (FWI, van Wagner 1987) from station and numerical climate model data.</p>
@@ -113,7 +113,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>In case any problems arise with the installation at this point, see this <a href="https://github.com/SantanderMetGroup/loadeR/wiki/Installation">help guide</a> at the loadeR’s wiki page.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(loadeR.ECOMS)</code></pre></div>
 <p>The package <code>transformeR</code> allows performing climate data transformations, including Principal Component/EOF analysis, subsetting, aggregation, regridding/interpolation… In this vignette, the subsetting, aggregation, detrending and visualization capabilitites of <code>transformeR</code> will be used.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">&quot;SantanderMetGroup/transformeR@v0.0.7&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">&quot;SantanderMetGroup/transformeR@v0.0.8&quot;</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(transformeR)</code></pre></div>
 <p>The package <code>downscaleR</code> implements several methods of bias correction and perfect-prog downscaling. It will be used for the bias-correction experiment illustrated in the article.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">&quot;SantanderMetGroup/downscaleR@v2.0-1&quot;</span>)</code></pre></div>
@@ -416,25 +416,24 @@ fwimean_obs_sub &lt;-<span class="st"> </span><span class="kw">subsetGrid</span>
 ##  [5] visualizeR_0.2-1        sm_2.2-5.4             
 ##  [7] downscaleR_2.0-1        loadeR.ECOMS_1.2.2     
 ##  [9] loadeR_1.0-7            loadeR.java_1.1-0      
-## [11] rJava_0.9-8             transformeR_0.0.7      
+## [11] rJava_0.9-8             transformeR_0.0.8      
 ## [13] abind_1.4-5            
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] Rcpp_0.12.10        plyr_1.8.4          bitops_1.0-6       
 ##  [4] tools_3.3.3         vioplot_0.2         boot_1.3-17        
 ##  [7] digest_0.6.9        evd_2.3-2           evaluate_0.10      
-## [10] memoise_1.0.0       lattice_0.20-34     Matrix_1.2-8       
+## [10] memoise_1.0.0       lattice_0.20-35     Matrix_1.2-8       
 ## [13] yaml_2.1.14         parallel_3.3.3      spam_1.4-0         
 ## [16] akima_0.6-2         withr_1.0.0         stringr_1.0.0      
-## [19] raster_2.5-8        knitr_1.15.1        mapplots_1.5       
-## [22] fields_8.10         devtools_1.12.0     maps_3.1.1         
-## [25] rprojroot_1.2       grid_3.3.3          dtw_1.18-1         
-## [28] pbapply_1.3-1       rmarkdown_1.3       sp_1.2-4           
-## [31] magrittr_1.5        scales_0.4.1        CircStats_0.2-4    
-## [34] backports_1.0.5     htmltools_0.3.5     MASS_7.3-44        
-## [37] colorspace_1.2-6    proxy_0.4-17        stringi_1.0-1      
-## [40] munsell_0.4.3       RCurl_1.95-4.8      verification_1.42  
-## [43] RcppEigen_0.3.2.9.1</code></pre>
+## [19] knitr_1.15.1        mapplots_1.5        fields_8.10        
+## [22] devtools_1.12.0     maps_3.1.1          rprojroot_1.2      
+## [25] grid_3.3.3          dtw_1.18-1          pbapply_1.3-1      
+## [28] rmarkdown_1.3       sp_1.2-4            magrittr_1.5       
+## [31] scales_0.4.1        CircStats_0.2-4     backports_1.0.5    
+## [34] htmltools_0.3.5     MASS_7.3-44         colorspace_1.2-6   
+## [37] proxy_0.4-17        stringi_1.0-1       munsell_0.4.3      
+## [40] RCurl_1.95-4.8      verification_1.42   RcppEigen_0.3.2.9.1</code></pre>
 <hr />
 </div>
 
