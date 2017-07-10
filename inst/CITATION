@@ -1,0 +1,13 @@
+bibentry(bibtype = "Article",
+         title = "Seasonal predictions of Fire Weather Index: Paving the way for their operational applicability in Mediterranean Europe",
+         author = c(person(given = "Joaquin", family = "Bedia", role = "aut"),
+                    person(given = "Nicola", family = "Golding", role = "aut"),
+                    person(given = "Ana", family =  "Casanueva", role = "aut"),
+                    person(given = "Maialen", family =  "Iturbide", role = "aut"),
+                    person(given = "Carlo", family =  "Buontempo", role = "aut"),
+                    person(given = "Jose Manuel", family =  "Gutierrez", role = "aut")),
+         url = "http://linkinghub.elsevier.com/retrieve/pii/S2405880716300826",
+         doi = "10.1016/j.cliser.2017.04.001",
+         journal = "Climate Services",
+         year = "2017"
+         )

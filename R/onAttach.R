@@ -21,7 +21,7 @@
             packageStartupMessage(ver.mess)
         }
     }
-    packageStartupMessage("Type 'vignette(\"Climate_Services_2017\", package = \"fireDanger\")' for package overview and examples")
+    packageStartupMessage("Type <vignette(\"Climate_Services_2017\", package = \"fireDanger\")> for package overview and examples\nPlease use citation(\"fireDanger\") to cite this package.")
 }
 # End
 
