@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE,
 ## ---- eval=FALSE---------------------------------------------------------
 #  devtools::install_github(c("SantanderMetGroup/loadeR.java@v1.1-0",
 #                   "SantanderMetGroup/loadeR@v1.0-7",
-#                   "SantanderMetGroup/loadeR.ECOMS@v1.2.2"))
+#                   "SantanderMetGroup/loadeR.ECOMS@v1.2.3"))
 
 ## ------------------------------------------------------------------------
 library(loadeR.ECOMS)
@@ -36,7 +36,7 @@ library(downscaleR)
 library(visualizeR)
 
 ## ---- eval=FALSE---------------------------------------------------------
-#  devtools::install_github("SantanderMetGroup/fireDanger@v1.0.1")
+#  devtools::install_github("SantanderMetGroup/fireDanger@v1.0.3")
 
 ## ------------------------------------------------------------------------
 library(fireDanger)

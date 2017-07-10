@@ -4,7 +4,7 @@
 
 <head>
 
-<meta charset="utf-8">
+<meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 
@@ -12,7 +12,7 @@
 
 <meta name="author" content="J. Bedia &amp; M. Iturbide" />
 
-<meta name="date" content="2017-04-07" />
+<meta name="date" content="2017-07-10" />
 
 <title>Seasonal Predictions of Fire Weather Index: Paving the Way for their operational applicability in Mediterranean Europe</title>
 
@@ -81,11 +81,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h1 class="title toc-ignore">Seasonal Predictions of Fire Weather Index: Paving the Way for their operational applicability in Mediterranean Europe</h1>
 <h3 class="subtitle"><em>Companion R examples of the paper published in Climate Services (2017, <a href="DOI:10.1016/j.cliser.2017.04.001" class="uri">DOI:10.1016/j.cliser.2017.04.001</a>)</em></h3>
 <h4 class="author"><em>J. Bedia &amp; M. Iturbide</em></h4>
-<h4 class="date"><em>2017-04-07</em></h4>
+<h4 class="date"><em>2017-07-10</em></h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
-<p>This is a worked example that reproduces the steps followed in Bedia et al. 2017 using the R-package <code>fireDanger</code>, that contains functions for computing the different components of the Fire Weather Index System (FWI, van Wagner 1987) from station and numerical climate model data.</p>
-<p>Packages <code>loadeR.ECOMS</code>, <code>downscaleR</code> and <code>easyVerification</code> are also used for climate data loading, manipulation, bias correction and verification. Furthermore, in the last section of this tutorial we also illustrate the use of different functionalities from the <code>visualizeR</code> package for seasonal forecast verification and visualization.</p>
+<p>This is a worked example that reproduces the steps followed in Bedia et al. 2017 using the R-package <code>fireDanger</code>, that contains functions for computing the different components of the Fire Weather Index System (FWI, van Wagner 1987) from station and numerical climate model data. <code>fireDanger</code> is part of the <em>climate4R</em> Bundle (see Cofiño et al 2017, in this issue of Climate Services), thus providing a seamless R interface not only to FWI calculation, but also to harmonized climate data access, data transformation, dowscaling / bias correction and other climate analysis tasks via a number of related R packages, some of them succintly described here. In particular, packages <code>loadeR.ECOMS</code>, <code>downscaleR</code> and <code>easyVerification</code> are used for climate data loading, manipulation, bias correction and verification. Furthermore, in the last section of this tutorial we also illustrate the use of different functionalities from the <code>visualizeR</code> package for seasonal forecast verification and visualization.</p>
 <p>The code provided in this example allows the reproducibility of all the analyses presented in the paper. However, for the sake of openness, data from the CFSv2 seasonal model (Saha et al 2010) are used instead of System4 (see the paper), the first being publicly available without restrictions. The reference observations dataset (WFDEI, Weedon et al 2014) is also publicly available.</p>
 </div>
 
@@ -109,7 +108,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>In this example, we will first illustrate the use of <code>loadeR.ECOMS</code>, required for accessing the OPeNDAP server from the Santander MetGroup , storing a number of seasonal forecast datasets and variables in the so called User Data Gateway, described in the next sections. A number of dependencies are installed, although only <code>loadeR.ECOMS</code> is explicitly loaded by the user.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="kw">c</span>(<span class="st">&quot;SantanderMetGroup/loadeR.java@v1.1-0&quot;</span>,
                  <span class="st">&quot;SantanderMetGroup/loadeR@v1.0-7&quot;</span>,
-                 <span class="st">&quot;SantanderMetGroup/loadeR.ECOMS@v1.2.2&quot;</span>))</code></pre></div>
+                 <span class="st">&quot;SantanderMetGroup/loadeR.ECOMS@v1.2.3&quot;</span>))</code></pre></div>
 <p>In case any problems arise with the installation at this point, see this <a href="https://github.com/SantanderMetGroup/loadeR/wiki/Installation">help guide</a> at the loadeR’s wiki page.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(loadeR.ECOMS)</code></pre></div>
 <p>The package <code>transformeR</code> allows performing climate data transformations, including Principal Component/EOF analysis, subsetting, aggregation, regridding/interpolation… In this vignette, the subsetting, aggregation, detrending and visualization capabilitites of <code>transformeR</code> will be used.</p>
@@ -125,7 +124,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="installing-firedanger" class="section level2">
 <h2>Installing fireDanger</h2>
 <p>The package <code>fireDanger</code> is used for the calculation of the FWI System from the climate data structures provided by the packages above. It is thus seamlessly integrated with the Santander MetGroup R Climate Processing Bundle.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">&quot;SantanderMetGroup/fireDanger@v1.0.1&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">&quot;SantanderMetGroup/fireDanger@v1.0.3&quot;</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fireDanger)</code></pre></div>
 </div>
 <div id="other-packages" class="section level2">
@@ -386,6 +385,7 @@ fwimean_obs_sub &lt;-<span class="st"> </span><span class="kw">subsetGrid</span>
 <ul>
 <li>Bedia, J., Herrera, S., Camia, A., Moreno, J.M., Gutierrez, J.M., 2014. Forest Fire Danger Projections in the Mediterranean using ENSEMBLES Regional Climate Change Scenarios. Clim Chang 122, 185–199. <a href="doi:10.1007/s10584-013-1005-z" class="uri">doi:10.1007/s10584-013-1005-z</a></li>
 <li>Bedia, J., Herrera, S., Gutierrez, J.M., Benali, A., Brands, S., Mota, B., Moreno, J.M., 2015. Global patterns in the sensitivity of burned area to fire-weather: implications for climate change. Agr. Forest Meteorol. 214–215, 369–379. <a href="doi:10.1016/j.agrformet.2015.09.002" class="uri">doi:10.1016/j.agrformet.2015.09.002</a></li>
+<li>Cofiño A.S., Bedia J., Iturbide M., Vega M., Herrera S., Fernández J., Frías M. D., Manzanas, R. and Gutiérrez J. M., 2017. The ECOMS User Data Gateway: Towards seasonal forecast data provision and research reproducibility in the era of Climate Services. Climate Services, in press.</li>
 <li>Saha, S., Moorthi, S., Wu, X., Wang, J., Nadiga, S., Tripp, P., Behringer, D., Hou, Y.-T., Chuang, H., Iredell, M., Ek, M., Meng, J., Yang, R., Peña Mendez, M., van den Dool, H., Zhang, Q., Wang, W., Chen, M., Becker, E., 2013. The NCEP Climate Forecast System Version 2. J Clim 130925135638001. <a href="doi:10.1175/JCLI-D-12-00823.1" class="uri">doi:10.1175/JCLI-D-12-00823.1</a></li>
 <li>van Wagner, C.E., 1987. Development and structure of the Canadian Forest Fire Weather Index (Forestry Tech. Rep. No. 35). Canadian Forestry Service, Ottawa, Canada.</li>
 <li>Weedon, G.P., Balsamo, G., Bellouin, N., Gomes, S., Best, M.J., Viterbo, P., 2014. The WFDEI meteorological forcing data set: WATCH Forcing Data methodology applied to ERA-Interim reanalysis data. Water Resour. Res. 50, 7505–7514. <a href="doi:10.1002/2014WR015638" class="uri">doi:10.1002/2014WR015638</a></li>
@@ -395,9 +395,13 @@ fwimean_obs_sub &lt;-<span class="st"> </span><span class="kw">subsetGrid</span>
 <h1>Session Information</h1>
 <hr />
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">sessionInfo</span>()</code></pre></div>
-<pre><code>## R version 3.3.3 (2017-03-06)
+<pre><code>## R version 3.4.1 (2017-06-30)
 ## Platform: x86_64-pc-linux-gnu (64-bit)
 ## Running under: Ubuntu 14.04.5 LTS
+## 
+## Matrix products: default
+## BLAS: /usr/lib/openblas-base/libblas.so.3
+## LAPACK: /usr/lib/lapack/liblapack.so.3.0
 ## 
 ## locale:
 ##  [1] LC_CTYPE=en_US.UTF-8          LC_NUMERIC=C                 
@@ -411,29 +415,30 @@ fwimean_obs_sub &lt;-<span class="st"> </span><span class="kw">subsetGrid</span>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] RColorBrewer_1.1-2      easyVerification_0.4.0 
-##  [3] SpecsVerification_0.5-0 fireDanger_1.0.1       
-##  [5] visualizeR_0.2-1        sm_2.2-5.4             
-##  [7] downscaleR_2.0-1        loadeR.ECOMS_1.2.2     
-##  [9] loadeR_1.0-7            loadeR.java_1.1-0      
-## [11] rJava_0.9-8             transformeR_0.0.8      
+##  [1] RColorBrewer_1.1-2      easyVerification_0.4.1 
+##  [3] SpecsVerification_0.5-2 fireDanger_1.0.3       
+##  [5] visualizeR_0.2-0        sm_2.2-5.4             
+##  [7] downscaleR_2.0-1        loadeR.ECOMS_1.3.0     
+##  [9] loadeR_1.1.0            loadeR.java_1.1-0      
+## [11] rJava_0.9-8             transformeR_0.0-15     
 ## [13] abind_1.4-5            
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.10        plyr_1.8.4          bitops_1.0-6       
-##  [4] tools_3.3.3         vioplot_0.2         boot_1.3-17        
-##  [7] digest_0.6.9        evd_2.3-2           evaluate_0.10      
-## [10] memoise_1.0.0       lattice_0.20-35     Matrix_1.2-8       
-## [13] yaml_2.1.14         parallel_3.3.3      spam_1.4-0         
-## [16] akima_0.6-2         withr_1.0.0         stringr_1.0.0      
-## [19] knitr_1.15.1        mapplots_1.5        fields_8.10        
-## [22] devtools_1.12.0     maps_3.1.1          rprojroot_1.2      
-## [25] grid_3.3.3          dtw_1.18-1          pbapply_1.3-1      
-## [28] rmarkdown_1.3       sp_1.2-4            magrittr_1.5       
-## [31] scales_0.4.1        CircStats_0.2-4     backports_1.0.5    
-## [34] htmltools_0.3.5     MASS_7.3-44         colorspace_1.2-6   
-## [37] proxy_0.4-17        stringi_1.0-1       munsell_0.4.3      
-## [40] RCurl_1.95-4.8      verification_1.42   RcppEigen_0.3.2.9.1</code></pre>
+##  [1] Rcpp_0.12.11        plyr_1.8.4          compiler_3.4.1     
+##  [4] bitops_1.0-6        tools_3.4.1         vioplot_0.2        
+##  [7] boot_1.3-19         digest_0.6.12       evd_2.3-2          
+## [10] evaluate_0.10       memoise_1.1.0       lattice_0.20-35    
+## [13] Matrix_1.2-10       yaml_2.1.14         parallel_3.4.1     
+## [16] spam_1.4-0          akima_0.6-2         withr_1.0.2        
+## [19] stringr_1.2.0       raster_2.5-8        knitr_1.15.1       
+## [22] mapplots_1.5        fields_8.15         devtools_1.12.0    
+## [25] maps_3.1.1          rprojroot_1.2       grid_3.4.1         
+## [28] dtw_1.18-1          pbapply_1.3-2       rmarkdown_1.5      
+## [31] sp_1.2-4            magrittr_1.5        scales_0.4.1       
+## [34] CircStats_0.2-4     backports_1.0.5     htmltools_0.3.5    
+## [37] MASS_7.3-47         colorspace_1.3-2    proxy_0.4-17       
+## [40] stringi_1.1.5       munsell_0.4.3       RCurl_1.95-4.8     
+## [43] verification_1.42   RcppEigen_0.3.2.9.1</code></pre>
 <hr />
 </div>
 
@@ -444,7 +449,7 @@ fwimean_obs_sub &lt;-<span class="st"> </span><span class="kw">subsetGrid</span>
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>
