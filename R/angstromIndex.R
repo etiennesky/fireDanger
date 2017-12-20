@@ -1,4 +1,4 @@
-angstronIndex <-
+angstromIndex <-
 function (t, rh) {
 	if (length(t) != length(r)) {
 		stop("Input time series of differing lengths")
