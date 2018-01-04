@@ -5,25 +5,29 @@ kbdi <- function (date, t, p, h=NULL, w=NULL, wrs = 150, start.date = NULL) {
       # Data conversion to inches and fahrenheit
       t <- (t * (9 / 5)) + 32
       p <- p * .0393700787402
+      compute_FDI <- TRUE
       #h relative humidity in percentage
-      if( is.null(h) ) { print("Warning: FDI will not be computed since h was not given as input"); h <- rep(NA, length(date)) }
+      if( is.null(h) ) {
+            compute_FDI <- FALSE
+            print("Warning: FFDI will not be computed since h was not given as input")
+            h <- rep(0, length(date))
+      }
       #w wind velocity (km/h)
-      if( is.null(w) ) { print("Warning: FDI will not be computed since w was not given as input"); w <- rep(NA, length(date)) }
+      if( is.null(w) ) {
+            compute_FDI <- FALSE
+            print("Warning: FFDI will not be computed since w was not given as input")
+            w <- rep(0, length(date))
+      }
       wrs <- wrs * .0393700787402
       start <- start.date
       # ----------------------------------------------------------------------
-      debug <- F
+      debug <- T
       if(debug) {
-            print("input d:")
-            print(d)
-            print("input t:")
-            print(t)
-            print("input p:")
-            print(p)
-            print("input h:")
-            print(h)
-            print("input w:")
-            print(w)
+            print("input d:") ; print(d)
+            print("input t:") ; print(t)
+            print("input p:") ; print(p)
+            print("input h:") ; print(h)
+            print("input w:") ; print(w)
       }
       # ----------------------------------------------------------------------
       if (length(t) != length(p)) {
@@ -40,6 +44,13 @@ kbdi <- function (date, t, p, h=NULL, w=NULL, wrs = 150, start.date = NULL) {
             d <- d[-na]
             h <- h[-na]
             w <- w[-na]
+      if(debug) {
+            print("modified d:") ; print(d)
+            print("modified t:") ; print(t)
+            print("modified p:") ; print(p)
+            print("modified h:") ; print(h)
+            print("modified w:") ; print(w)
+      }
       }
       # mean annual precip (M) -----------------------------------------------
       yr <- d$year + 1900 
@@ -142,7 +153,8 @@ kbdi <- function (date, t, p, h=NULL, w=NULL, wrs = 150, start.date = NULL) {
 
       ## McArthur's components
       D <- (.191*(Q + 104) * ((N + 1) ^ 1.5)) / ((3.52 * ((N + 1) ^ 1.5)) + (p / .0393700787402) - 1) # McArthur's Drought Factor 
-      FDI <- 2 * exp(-.45 + .987*log(D) - .0345 * h + .0338 * ((t - 32)*(5 / 9)) + .0234 * w)  # Forest Fire Danger
+      if ( compute_FDI ) FDI <- 2 * exp(-.45 + .987*log(D) - .0345 * h + .0338 * ((t - 32)*(5 / 9)) + .0234 * w)  # Forest Fire Danger
+      else FDI <- rep(NA, length(date))
       net.rain <- net.rain / .0393700787402 # conversion of net rainfall to mm
 
       if(debug) print(D)
