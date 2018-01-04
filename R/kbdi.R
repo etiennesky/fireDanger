@@ -1,12 +1,30 @@
-kbdi <- function (date, t, p, h, w, wrs = 150, start.date = NULL) { # requires date to compute mean annual precipitation
+# requires date to compute mean annual precipitation
+# h and w are optional, but FDI will not be computed if they are not given
+kbdi <- function (date, t, p, h=NULL, w=NULL, wrs = 150, start.date = NULL) { 
       d <- as.POSIXlt(date)
       # Data conversion to inches and fahrenheit
       t <- (t * (9 / 5)) + 32
       p <- p * .0393700787402
-      h <- h # relative humidity in percentage
-      w <- w # wind velocity (km/h)
+      #h relative humidity in percentage
+      if( is.null(h) ) { print("Warning: FDI will not be computed since h was not given as input"); h <- rep(NA, length(date)) }
+      #w wind velocity (km/h)
+      if( is.null(w) ) { print("Warning: FDI will not be computed since w was not given as input"); w <- rep(NA, length(date)) }
       wrs <- wrs * .0393700787402
       start <- start.date
+      # ----------------------------------------------------------------------
+      debug <- F
+      if(debug) {
+            print("input d:")
+            print(d)
+            print("input t:")
+            print(t)
+            print("input p:")
+            print(p)
+            print("input h:")
+            print(h)
+            print("input w:")
+            print(w)
+      }
       # ----------------------------------------------------------------------
       if (length(t) != length(p)) {
             stop("Input time series of differing lengths")
@@ -105,6 +123,7 @@ kbdi <- function (date, t, p, h, w, wrs = 150, start.date = NULL) { # requires d
       Q <- c(0, rep(NA, (length(t) - 1)))
       dQ <- rep(NA, (length(t))) 
       Ep <- rep(NA, (length(t))) 
+
       ## KBDI computing-----------------------------------------------------------------------------------------------------------------
       for (i in 2:length(t)) {
             if (net.rain[i] > 0) {
@@ -120,10 +139,14 @@ kbdi <- function (date, t, p, h, w, wrs = 150, start.date = NULL) { # requires d
       }
       Q[which(Q < 0)] <- 0
       Q <- (Q / 100) / .0393700787402
+
       ## McArthur's components
       D <- (.191*(Q + 104) * ((N + 1) ^ 1.5)) / ((3.52 * ((N + 1) ^ 1.5)) + (p / .0393700787402) - 1) # McArthur's Drought Factor 
       FDI <- 2 * exp(-.45 + .987*log(D) - .0345 * h + .0338 * ((t - 32)*(5 / 9)) + .0234 * w)  # Forest Fire Danger
       net.rain <- net.rain / .0393700787402 # conversion of net rainfall to mm
-      return(cbind.data.frame('date'=as.Date(d, origin = '1970-01-01'), 'net.precip'= net.rain, "KBDI" = Q, 'McArthurDF' = D, "FFDI"=FDI))
+
+      if(debug) print(D)
+
+      return(cbind.data.frame('date'=as.Date(d, origin = '1970-01-01'), 'net.precip'= net.rain, "KBDI" = Q, 'MDF' = D, "FFDI"=FDI))
 }
 # End
