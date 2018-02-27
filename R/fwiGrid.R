@@ -95,6 +95,7 @@ fwiGrid <- function(multigrid,
       dimNames.mg <- getDim(multigrid)
       n.mem <- tryCatch(getShape(multigrid, "member"),
                         error = function(er) 1L)
+      if ( is.na(n.mem) ) n.mem=1L
       ## if (n.mem == 1L) multigrid <- redim(multigrid)
       yrsindex <- getYearsAsINDEX(multigrid)
       nyears <- length(unique(yrsindex))
@@ -136,6 +137,12 @@ fwiGrid <- function(multigrid,
             ## Multigrid subsetting
             Tm1 <- subsetGrid(multigrid_chunk, var = grep("tas", varnames, value = TRUE))
             Tm1 <- redim(Tm1, drop = FALSE)
+            # convert tas to degC units are K
+            if ( attr(Tm1$Variable, "units") == "K" ) {
+                  attr(Tm1$Variable, "units") = "degree_Celsius"
+                  Tm1$Data = Tm1$Data-273.15
+                  message("NOTE: converted temperature to degrees Celcius from Kelvin.")
+            }
             H1  <- subsetGrid(multigrid_chunk, var = grep("hurs", varnames, value = TRUE))
             H1 <- redim(H1, drop = FALSE)
             r1  <- subsetGrid(multigrid_chunk, var = "tp")
